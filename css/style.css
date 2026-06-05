@@ -839,6 +839,66 @@ h2 {
   border-color: var(--accent-color);
 }
 
+/* --- Paddle Force launch card --- */
+.game-launch {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 18px;
+  text-decoration: none;
+  color: inherit;
+  background: linear-gradient(120deg, rgba(196, 78, 200, 0.16), rgba(52, 178, 122, 0.16)), var(--card-bg);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  padding: 18px;
+  margin-bottom: 8px;
+  box-shadow: var(--shadow);
+  transform-style: preserve-3d;
+}
+.game-launch:hover {
+  border-color: var(--accent-color);
+}
+.game-launch-art {
+  position: relative;
+  flex: 0 0 200px;
+  height: 120px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: linear-gradient(90deg, #bb3fbf 0 50%, #2fa06f 50% 100%);
+}
+.game-launch-art .gl-p1,
+.game-launch-art .gl-p2 {
+  position: absolute;
+  top: 50%;
+  width: 8px;
+  height: 38px;
+  background: #fff;
+  border-radius: 4px;
+  transform: translateY(-50%);
+}
+.game-launch-art .gl-p1 { left: 16px; }
+.game-launch-art .gl-p2 { right: 16px; }
+.game-launch-art .gl-ball {
+  position: absolute;
+  top: 46%;
+  left: 46%;
+  width: 14px;
+  height: 14px;
+  background: #fff;
+  border-radius: 50%;
+}
+.game-launch-body {
+  flex: 1 1 240px;
+}
+.game-launch-body h4 {
+  margin: 0 0 4px;
+  font-size: 1.2rem;
+}
+.game-launch-body p {
+  margin: 0 0 12px;
+  max-width: 52ch;
+}
+
 /* ------------------------------ Memory ------------------------------ */
 .memory {
   max-width: 520px;

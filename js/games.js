@@ -4,10 +4,10 @@
 // ---------------------------------------------------------------------------
 
 import { t } from './i18n.js';
-import { initPong } from './pong.js';
 
+// Paddle Force now lives on its own full-screen page (game.html / paddleforce.js).
+// The Games section links to it; here we only wire the Memory bonus game.
 export function initGames() {
-  initPong();
   initMemory();
 }
 
