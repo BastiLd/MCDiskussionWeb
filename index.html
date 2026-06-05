@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark light" />
+    <meta
+      name="description"
+      content="BastiLd Mod Hub — RestoreInventory, a Fabric mod that backs up and restores your Minecraft inventory. Downloads, commands, permissions and mini-games."
+    />
+    <meta name="theme-color" content="#0f0f12" />
+    <title>BastiLd Mod Hub</title>
+
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+    <link rel="stylesheet" href="css/style.css" />
+
+    <!-- CDN libraries (UMD globals). Loaded with defer so they're ready before our modules run. -->
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrambleTextPlugin.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.1/vanilla-tilt.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Our application code (ES modules). type="module" implies defer. -->
+    <script type="module" src="js/app.js"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main" data-i18n="skipLink">Skip to main content</a>
+
+    <!-- ===================== NAV ===================== -->
+    <header class="site-header">
+      <nav class="nav" aria-label="Primary">
+        <a class="brand" href="#home">
+          <span class="brand-mark" aria-hidden="true">📦</span>
+          <span class="brand-text">BastiLd</span>
+        </a>
+        <ul class="nav-links" role="list">
+          <li><a href="#home" data-nav data-i18n="navHome">Home</a></li>
+          <li><a href="#restoreinventory" data-nav data-i18n="navRestore">RestoreInventory</a></li>
+          <li><a href="#games" data-nav data-i18n="navGames">Games</a></li>
+          <li><a href="#mods" data-nav data-i18n="navMods">Mods</a></li>
+        </ul>
+        <button
+          id="lang-toggle"
+          class="lang-toggle magnet"
+          type="button"
+          data-i18n-attr="aria-label:langToggle"
+          aria-label="Switch language to German"
+        >
+          <span data-i18n="langName">EN</span>
+        </button>
+      </nav>
+    </header>
+
+    <main id="main">
+      <!-- ===================== HOME ===================== -->
+      <section id="home" class="section" tabindex="-1" aria-labelledby="hero-title">
+        <div class="hero">
+          <h1 id="hero-title" class="hero-title sig-heading" data-i18n="heroTitle">BastiLd Mod Hub</h1>
+          <p id="hero-subtitle" class="hero-subtitle" data-i18n="heroSubtitle">
+            Explore mods and play mini-games.
+          </p>
+          <p class="hero-lead reveal" data-i18n="heroLead">
+            A small hub for my Minecraft mods. Start with RestoreInventory — never lose your
+            inventory again — then stick around for a game.
+          </p>
+          <div class="hero-cta reveal">
+            <a class="btn btn-primary magnet" href="#restoreinventory" data-i18n="heroCtaRestore"
+              >Explore RestoreInventory</a
+            >
+            <a class="btn btn-ghost magnet" href="#games" data-i18n="heroCtaGames">Play a game</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================== RESTOREINVENTORY ===================== -->
+      <section id="restoreinventory" class="section" tabindex="-1" aria-labelledby="ri-title" hidden>
+        <header class="section-head">
+          <h2 id="ri-title" class="sig-heading" data-i18n="riTitle">RestoreInventory</h2>
+          <p class="section-lead reveal" data-i18n="riTagline">
+            A Fabric mod that automatically backs up your inventory and lets you restore it on
+            demand — across deaths, mistakes and even mod updates.
+          </p>
+        </header>
+
+        <!-- Features -->
+        <h3 class="block-title" data-i18n="featuresTitle">Features</h3>
+        <ul class="feature-list reveal" role="list">
+          <li data-i18n="feat1">Four save slots per player: Auto (short), Auto (long), Manual and Death.</li>
+          <li data-i18n="feat2">Configurable auto-save intervals for the Auto slots.</li>
+          <li data-i18n="feat3">Auto-save just before death into the dedicated Death slot.</li>
+          <li data-i18n="feat4">Undo restoration (/restoreinv undo) — the current inventory is saved first.</li>
+          <li data-i18n="feat5">Inventory preview GUI (9×6) showing armor, main inventory, hotbar and off-hand.</li>
+          <li data-i18n="feat6">Detailed tooltips: relative time, item count and best tool.</li>
+          <li data-i18n="feat7">Pin protection: right-click to prevent overwriting saves.</li>
+          <li data-i18n="feat8">Configurable number of saves per slot (1–9).</li>
+          <li data-i18n="feat9">Restore sound toggle and per-player settings.</li>
+          <li data-i18n="feat10">Multilingual (English / German).</li>
+          <li data-i18n="feat11">Asynchronous saving off the server thread.</li>
+          <li data-i18n="feat12">Saves stored in restoreinv/&lt;uuid&gt; and persist across mod updates.</li>
+          <li data-i18n="feat13">Supported versions: 1.21–1.21.1, 1.21.2–1.21.4, 1.21.9–1.21.11.</li>
+          <li data-i18n="feat14">Commands: /restoreinv 1|2|3|4, save, undo, saves, config, version.</li>
+          <li data-i18n="feat15">Permissions: restoreinv.admin and restoreinv.restore (OP fallback).</li>
+          <li data-i18n="feat16">MIT license; saves survive updates and are backward-compatible.</li>
+        </ul>
+
+        <!-- Downloads -->
+        <h3 class="block-title" data-i18n="downloadsTitle">Downloads</h3>
+        <p class="note reveal">
+          <span aria-hidden="true">✓</span>
+          <span data-i18n="downloadNote">Saves survive updates.</span>
+        </p>
+        <div class="download-grid">
+          <article class="card tilt reveal">
+            <div class="card-row">
+              <span class="card-label" data-i18n="thVersion">Version Range</span>
+              <span class="card-value">1.21 – 1.21.1</span>
+            </div>
+            <div class="card-row">
+              <span class="card-label" data-i18n="thJar">JAR Name</span>
+              <code class="card-jar">RestoreInventory-mc1.21-1.21.1-v3.0.0.jar</code>
+            </div>
+            <div class="card-actions">
+              <a
+                class="btn btn-primary"
+                href="https://modrinth.com/mod/restoreinv"
+                target="_blank"
+                rel="noopener"
+                data-i18n="btnModrinth"
+                >Modrinth</a
+              >
+              <a
+                class="btn btn-ghost"
+                href="https://github.com/BastiLd/Restore-Inv/releases/tag/v3.0.0"
+                target="_blank"
+                rel="noopener"
+                data-i18n="btnGithub"
+                >GitHub Release</a
+              >
+            </div>
+          </article>
+
+          <article class="card tilt reveal">
+            <div class="card-row">
+              <span class="card-label" data-i18n="thVersion">Version Range</span>
+              <span class="card-value">1.21.2 – 1.21.4</span>
+            </div>
+            <div class="card-row">
+              <span class="card-label" data-i18n="thJar">JAR Name</span>
+              <code class="card-jar">RestoreInventory-mc1.21.2-1.21.4-v3.0.0.jar</code>
+            </div>
+            <div class="card-actions">
+              <a
+                class="btn btn-primary"
+                href="https://modrinth.com/mod/restoreinv"
+                target="_blank"
+                rel="noopener"
+                data-i18n="btnModrinth"
+                >Modrinth</a
+              >
+              <a
+                class="btn btn-ghost"
+                href="https://github.com/BastiLd/Restore-Inv/releases/tag/v3.0.0"
+                target="_blank"
+                rel="noopener"
+                data-i18n="btnGithub"
+                >GitHub Release</a
+              >
+            </div>
+          </article>
+
+          <article class="card tilt reveal">
+            <div class="card-row">
+              <span class="card-label" data-i18n="thVersion">Version Range</span>
+              <span class="card-value">1.21.9 – 1.21.11</span>
+            </div>
+            <div class="card-row">
+              <span class="card-label" data-i18n="thJar">JAR Name</span>
+              <code class="card-jar">RestoreInventory-mc1.21.9-1.21.11-v3.0.0.jar</code>
+            </div>
+            <div class="card-actions">
+              <a
+                class="btn btn-primary"
+                href="https://modrinth.com/mod/restoreinv"
+                target="_blank"
+                rel="noopener"
+                data-i18n="btnModrinth"
+                >Modrinth</a
+              >
+              <a
+                class="btn btn-ghost"
+                href="https://github.com/BastiLd/Restore-Inv/releases/tag/v3.0.0"
+                target="_blank"
+                rel="noopener"
+                data-i18n="btnGithub"
+                >GitHub Release</a
+              >
+            </div>
+          </article>
+        </div>
+
+        <!-- Commands -->
+        <h3 class="block-title" data-i18n="commandsTitle">Commands</h3>
+        <div class="table-wrap reveal">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th scope="col" data-i18n="thCommand">Command</th>
+                <th scope="col" data-i18n="thDescription">Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td><code>/restoreinv 1|2|3|4</code></td><td data-i18n="cmd1">Restore from Auto-short / Auto-long / Manual / Death.</td></tr>
+              <tr><td><code>/restoreinv save</code></td><td data-i18n="cmd2">Save current inventory to the Manual slot.</td></tr>
+              <tr><td><code>/restoreinv undo</code></td><td data-i18n="cmd3">Undo the last restoration.</td></tr>
+              <tr><td><code>/restoreinv saves</code></td><td data-i18n="cmd4">Open your save list GUI.</td></tr>
+              <tr><td><code>/restoreinv config</code></td><td data-i18n="cmd5">Open the configuration GUI (admins only).</td></tr>
+              <tr><td><code>/restoreinv version</code></td><td data-i18n="cmd6">Show the mod and Minecraft version.</td></tr>
+              <tr>
+                <td><strong data-i18n="cmdAliasesLabel">Aliases</strong> <code>/rinv</code>, <code>/restoreInv</code></td>
+                <td data-i18n="cmdAliases">Shortcuts for /restoreinv.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Permissions -->
+        <h3 class="block-title" data-i18n="permissionsTitle">Permissions</h3>
+        <div class="table-wrap reveal">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th scope="col" data-i18n="thNode">Node</th>
+                <th scope="col" data-i18n="thEffect">Effect</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td><code>restoreinv.admin</code></td><td data-i18n="perm1">Access config GUI, admin panel, restore other players.</td></tr>
+              <tr><td><code>restoreinv.restore</code></td><td data-i18n="perm2">Restore your own inventory (/restoreinv and undo).</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Comments -->
+        <div class="comments" data-comments data-project="restoreinventory">
+          <h3 class="block-title" data-i18n="commentsTitle">Comments</h3>
+          <p class="section-lead" data-i18n="commentsIntro">Got feedback or a bug report? Leave a comment.</p>
+
+          <form class="comment-form" data-comment-form novalidate>
+            <input type="hidden" name="parent_id" value="" />
+            <p class="reply-indicator" data-reply-indicator hidden>
+              <span data-i18n="formReplyTo">Replying to</span>
+              <strong data-reply-name></strong>
+              <button type="button" class="link-btn" data-cancel-reply data-i18n="formCancel">Cancel</button>
+            </p>
+            <div class="field">
+              <label for="cf-name-restoreinventory" data-i18n="formName">Name</label>
+              <input
+                id="cf-name-restoreinventory"
+                name="author_name"
+                type="text"
+                maxlength="50"
+                required
+                autocomplete="nickname"
+                data-i18n-attr="placeholder:formNamePh"
+                placeholder="Your name"
+              />
+            </div>
+            <div class="field">
+              <label for="cf-body-restoreinventory" data-i18n="formBody">Comment</label>
+              <textarea
+                id="cf-body-restoreinventory"
+                name="body"
+                rows="3"
+                maxlength="1000"
+                required
+                data-i18n-attr="placeholder:formBodyPh"
+                placeholder="Write something nice…"
+              ></textarea>
+            </div>
+            <!-- Honeypot: hidden from humans; bots tend to fill it. -->
+            <div class="hp" aria-hidden="true">
+              <label>Website<input type="text" name="website" tabindex="-1" autocomplete="off" /></label>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary magnet" data-i18n="formSubmit">Post comment</button>
+              <span class="form-msg" data-form-msg role="status" aria-live="polite"></span>
+            </div>
+          </form>
+
+          <div class="comment-list" data-comment-list aria-live="polite">
+            <p class="muted" data-comments-loading data-i18n="commentsLoading">Loading comments…</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================== GAMES ===================== -->
+      <section id="games" class="section" tabindex="-1" aria-labelledby="games-title" hidden>
+        <header class="section-head">
+          <h2 id="games-title" class="sig-heading" data-i18n="gamesTitle">Games</h2>
+          <p class="section-lead reveal" data-i18n="gamesIntro">
+            A quick break? Two players, rotating paddles, first to 5 wins.
+          </p>
+        </header>
+
+        <h3 class="block-title" data-i18n="pongTitle">Rotary Pong</h3>
+        <p class="muted" data-i18n="pongHowto">
+          Player 1: W / S move, A / D rotate. Player 2: ↑ / ↓ move, ← / → rotate.
+        </p>
+
+        <div class="pong-wrap" data-pong>
+          <div class="pong-stage">
+            <canvas data-pong-canvas width="800" height="500" role="img"
+              aria-label="Rotary Pong game board"></canvas>
+            <div class="pong-overlay" data-pong-overlay hidden>
+              <p class="pong-result" data-pong-result></p>
+              <button type="button" class="btn btn-primary magnet" data-pong-restart data-i18n="gameRestart">
+                Restart
+              </button>
+              <p class="muted" data-i18n="gameStartHint">Press Space or Restart to play.</p>
+            </div>
+          </div>
+
+          <!-- On-screen controls (shown on touch devices) -->
+          <div class="touch-controls" data-touch-controls hidden>
+            <div class="touch-pad" data-side="p1">
+              <span class="touch-label" data-i18n="p1Label">Player 1</span>
+              <div class="touch-row">
+                <button type="button" data-key="w" data-i18n-attr="aria-label:ctrlUp" aria-label="Move up">▲</button>
+                <button type="button" data-key="s" data-i18n-attr="aria-label:ctrlDown" aria-label="Move down">▼</button>
+                <button type="button" data-key="a" data-i18n-attr="aria-label:ctrlRotL" aria-label="Rotate CCW">⟲</button>
+                <button type="button" data-key="d" data-i18n-attr="aria-label:ctrlRotR" aria-label="Rotate CW">⟳</button>
+              </div>
+            </div>
+            <div class="touch-pad" data-side="p2">
+              <span class="touch-label" data-i18n="p2Label">Player 2</span>
+              <div class="touch-row">
+                <button type="button" data-key="ArrowUp" data-i18n-attr="aria-label:ctrlUp" aria-label="Move up">▲</button>
+                <button type="button" data-key="ArrowDown" data-i18n-attr="aria-label:ctrlDown" aria-label="Move down">▼</button>
+                <button type="button" data-key="ArrowLeft" data-i18n-attr="aria-label:ctrlRotL" aria-label="Rotate CCW">⟲</button>
+                <button type="button" data-key="ArrowRight" data-i18n-attr="aria-label:ctrlRotR" aria-label="Rotate CW">⟳</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bonus: Memory match -->
+        <h3 class="block-title" data-i18n="memoryTitle">Memory Match</h3>
+        <p class="muted" data-i18n="memoryIntro">Bonus round — flip the cards and find every pair.</p>
+        <div class="memory" data-memory>
+          <div class="memory-bar">
+            <span><span data-i18n="memoryMoves">Moves</span>: <strong data-memory-moves>0</strong></span>
+            <button type="button" class="btn btn-ghost" data-memory-restart data-i18n="memoryRestart">New game</button>
+          </div>
+          <div class="memory-grid" data-memory-grid></div>
+        </div>
+      </section>
+
+      <!-- ===================== MODS ===================== -->
+      <section id="mods" class="section" tabindex="-1" aria-labelledby="mods-title" hidden>
+        <header class="section-head">
+          <h2 id="mods-title" class="sig-heading" data-i18n="modsTitle">Mods</h2>
+          <p class="section-lead reveal" data-i18n="modsIntro">
+            Everything I have published, plus what is coming next.
+          </p>
+        </header>
+
+        <div class="mods-grid">
+          <article class="card tilt reveal">
+            <h3>RestoreInventory</h3>
+            <p data-i18n="modsRestoreCard">Inventory backups &amp; restoration for Fabric.</p>
+            <a class="btn btn-primary" href="#restoreinventory" data-nav data-i18n="modsView">View</a>
+          </article>
+          <article class="card card-muted reveal">
+            <h3 data-i18n="modsSoonTitle">More coming soon</h3>
+            <p data-i18n="modsSoon">New mods will appear here. Have an idea? Drop it in the comments.</p>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p data-i18n="footerMade">Made by BastiLd · MIT licensed</p>
+      <a href="https://github.com/BastiLd" target="_blank" rel="noopener" data-i18n="footerSource"
+        >Source on GitHub</a
+      >
+    </footer>
+  </body>
+</html>
