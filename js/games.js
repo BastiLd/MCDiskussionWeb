@@ -314,6 +314,7 @@ function initPong() {
     hideOverlay();
     lastT = performance.now();
     loop();
+    document.dispatchEvent(new CustomEvent('gamestart', { detail: { game: 'pong' } }));
   }
 
   function gameOver() {

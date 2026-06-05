@@ -91,6 +91,77 @@ by Row Level Security, so it's safe to commit.
 > The URL in `js/config.js` is the API endpoint (`https://<ref>.supabase.co`), derived from
 > the project ref — **not** the dashboard URL. If you swap projects, update both constants.
 
+## Admin dashboard (one-time setup)
+
+The site has a private **Dashboard** (reachable via the 🔒 button in the nav, route `#admin`)
+that only the owner can use after logging in. It shows visitor stats (page views, downloads,
+game starts, section views) and lets you moderate every comment (reply / hide / show / delete).
+Authorisation is enforced by Postgres RLS — not just the UI.
+
+### 1. Create the analytics + admin tables
+
+In the Supabase **SQL Editor**, run this once:
+
+```sql
+-- ===== Analytics events =====
+create table if not exists public.events (
+  id uuid primary key default uuid_generate_v4(),
+  type text not null check (char_length(type) <= 40),
+  label text check (char_length(label) <= 160),
+  path text check (char_length(path) <= 200),
+  created_at timestamptz not null default now()
+);
+alter table public.events enable row level security;
+
+create policy "Anyone can insert events" on public.events
+  for insert with check (type is not null and char_length(type) > 0);
+
+-- ===== Admins =====
+create table if not exists public.admins (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  created_at timestamptz not null default now()
+);
+alter table public.admins enable row level security;
+
+create policy "Admins can read own admin row" on public.admins
+  for select using (auth.uid() = user_id);
+
+create or replace function public.is_admin()
+returns boolean language sql security definer set search_path = public as $$
+  select exists (select 1 from public.admins a where a.user_id = auth.uid());
+$$;
+
+-- Admins can read analytics
+create policy "Admins can read events" on public.events
+  for select using (public.is_admin());
+
+-- Admins can moderate comments (see all + update + delete)
+create policy "Admins can read all comments" on public.comments
+  for select using (public.is_admin());
+create policy "Admins can update comments" on public.comments
+  for update using (public.is_admin()) with check (public.is_admin());
+create policy "Admins can delete comments" on public.comments
+  for delete using (public.is_admin());
+```
+
+### 2. Create your login
+
+In Supabase: **Authentication → Users → Add user**. Enter your email + a password and tick
+**Auto Confirm User**. (Email/password sign-in is enabled by default.)
+
+### 3. Make that user an admin
+
+Run this once (replace the email if different):
+
+```sql
+insert into public.admins (user_id)
+select id from auth.users where email = 'herringerr912@gmail.com'
+on conflict (user_id) do nothing;
+```
+
+That's it. Open the site, click 🔒, sign in — the **Dashboard** tab appears. Your own visits
+aren't counted in the stats while you're logged in.
+
 ## Deploy to GitHub Pages
 
 ### Option A — GitHub Actions (included)

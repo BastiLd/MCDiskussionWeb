@@ -39,7 +39,17 @@
           <li><a href="#restoreinventory" data-nav data-i18n="navRestore">RestoreInventory</a></li>
           <li><a href="#games" data-nav data-i18n="navGames">Games</a></li>
           <li><a href="#mods" data-nav data-i18n="navMods">Mods</a></li>
+          <li data-admin-nav hidden>
+            <a href="#admin" data-nav data-i18n="navDashboard">Dashboard</a>
+          </li>
         </ul>
+        <a
+          class="lang-toggle icon-btn"
+          href="#admin"
+          data-i18n-attr="aria-label:adminLoginAria"
+          aria-label="Admin login"
+          >🔒</a
+        >
         <button
           id="lang-toggle"
           class="lang-toggle magnet"
@@ -126,6 +136,8 @@
                 href="https://modrinth.com/mod/restoreinv"
                 target="_blank"
                 rel="noopener"
+                data-track="download"
+                data-track-label="modrinth"
                 data-i18n="btnModrinth"
                 >Modrinth</a
               >
@@ -134,6 +146,8 @@
                 href="https://github.com/BastiLd/Restore-Inv/releases/tag/v3.0.0"
                 target="_blank"
                 rel="noopener"
+                data-track="download"
+                data-track-label="github"
                 data-i18n="btnGithub"
                 >GitHub Release</a
               >
@@ -155,6 +169,8 @@
                 href="https://modrinth.com/mod/restoreinv"
                 target="_blank"
                 rel="noopener"
+                data-track="download"
+                data-track-label="modrinth"
                 data-i18n="btnModrinth"
                 >Modrinth</a
               >
@@ -163,6 +179,8 @@
                 href="https://github.com/BastiLd/Restore-Inv/releases/tag/v3.0.0"
                 target="_blank"
                 rel="noopener"
+                data-track="download"
+                data-track-label="github"
                 data-i18n="btnGithub"
                 >GitHub Release</a
               >
@@ -184,6 +202,8 @@
                 href="https://modrinth.com/mod/restoreinv"
                 target="_blank"
                 rel="noopener"
+                data-track="download"
+                data-track-label="modrinth"
                 data-i18n="btnModrinth"
                 >Modrinth</a
               >
@@ -192,6 +212,8 @@
                 href="https://github.com/BastiLd/Restore-Inv/releases/tag/v3.0.0"
                 target="_blank"
                 rel="noopener"
+                data-track="download"
+                data-track-label="github"
                 data-i18n="btnGithub"
                 >GitHub Release</a
               >
@@ -375,6 +397,54 @@
             <h3 data-i18n="modsSoonTitle">More coming soon</h3>
             <p data-i18n="modsSoon">New mods will appear here. Have an idea? Drop it in the comments.</p>
           </article>
+        </div>
+      </section>
+
+      <!-- ===================== ADMIN DASHBOARD ===================== -->
+      <section id="admin" class="section" tabindex="-1" aria-labelledby="admin-title" hidden>
+        <header class="section-head">
+          <h2 id="admin-title" class="sig-heading" data-i18n="adminTitle">Dashboard</h2>
+        </header>
+
+        <!-- Login -->
+        <div class="admin-login" data-admin-login>
+          <p class="section-lead" data-i18n="adminLoginLead">Sign in to manage comments and view stats.</p>
+          <form class="comment-form admin-login-form" data-login-form novalidate>
+            <div class="field">
+              <label for="admin-email" data-i18n="adminEmail">Email</label>
+              <input id="admin-email" name="email" type="email" autocomplete="username" required />
+            </div>
+            <div class="field">
+              <label for="admin-password" data-i18n="adminPassword">Password</label>
+              <input
+                id="admin-password"
+                name="password"
+                type="password"
+                autocomplete="current-password"
+                required
+              />
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary" data-i18n="adminSignIn">Sign in</button>
+              <span class="form-msg" data-login-msg role="status" aria-live="polite"></span>
+            </div>
+          </form>
+        </div>
+
+        <!-- Dashboard (admins only) -->
+        <div class="admin-dashboard" data-admin-dashboard hidden>
+          <div class="admin-toolbar">
+            <button type="button" class="btn btn-ghost" data-admin-refresh data-i18n="adminRefresh">
+              Refresh
+            </button>
+            <button type="button" class="btn btn-ghost" data-logout data-i18n="adminLogout">Log out</button>
+          </div>
+
+          <h3 class="block-title" data-i18n="adminStatsTitle">Statistics</h3>
+          <div data-admin-stats></div>
+
+          <h3 class="block-title" data-i18n="adminCommentsTitle">Comment moderation</h3>
+          <div class="admin-comments" data-admin-comments></div>
         </div>
       </section>
     </main>

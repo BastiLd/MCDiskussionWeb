@@ -7,22 +7,9 @@
 // immediately so the feature works even if realtime isn't enabled.
 // ---------------------------------------------------------------------------
 
-import {
-  SUPABASE_URL,
-  SUPABASE_ANON_KEY,
-  COMMENT_RATE_LIMIT_MS,
-  MAX_NAME_LEN,
-  MAX_BODY_LEN,
-} from './config.js';
+import { COMMENT_RATE_LIMIT_MS, MAX_NAME_LEN, MAX_BODY_LEN } from './config.js';
 import { t, getLanguage } from './i18n.js';
-
-let client = null;
-function getClient() {
-  if (client) return client;
-  if (!window.supabase || !SUPABASE_URL || !SUPABASE_ANON_KEY) return null;
-  client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  return client;
-}
+import { getSupabase } from './supabaseClient.js';
 
 export function initComments() {
   const blocks = document.querySelectorAll('[data-comments]');
@@ -61,7 +48,7 @@ class CommentBlock {
     if (this.loaded) return;
     this.loaded = true;
 
-    const sb = getClient();
+    const sb = getSupabase();
     if (!sb) {
       this.setListMessage(t('commentsError'), 'error');
       this.loaded = false; // allow a retry on next activation
@@ -258,7 +245,7 @@ class CommentBlock {
       return;
     }
 
-    const sb = getClient();
+    const sb = getSupabase();
     if (!sb) {
       this.showMsg(t('commentsError'), 'error');
       return;

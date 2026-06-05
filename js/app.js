@@ -6,6 +6,8 @@
 import { setLanguage, getLanguage, detectLanguage, t } from './i18n.js';
 import { initGames } from './games.js';
 import { initComments } from './comments.js';
+import { initAnalytics } from './analytics.js';
+import { initAdmin } from './admin.js';
 
 const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)');
 const isTouch =
@@ -28,7 +30,7 @@ function initLanguage() {
 // ===========================================================================
 // 2. Hash router with View Transitions
 // ===========================================================================
-const SECTIONS = ['home', 'restoreinventory', 'games', 'mods'];
+const SECTIONS = ['home', 'restoreinventory', 'games', 'mods', 'admin'];
 
 function currentId() {
   const id = (location.hash || '#home').slice(1);
@@ -267,12 +269,15 @@ function boot() {
   if (isTouch) document.body.classList.add('is-touch');
 
   // Language + router first so navigation is guaranteed even if a later
-  // feature module errors out.
+  // feature module errors out. Analytics is set up before the router so it sees
+  // the very first section view.
   safe('language', initLanguage);
+  safe('analytics', initAnalytics);
   safe('router', initRouter);
   safe('signature-headings', initSignatureHeadings);
   safe('games', initGames);
   safe('comments', initComments);
+  safe('admin', initAdmin);
   safe('magnets', initMagnets);
   safe('spotlight', initSpotlight);
   safe('reveal', initReveal);
