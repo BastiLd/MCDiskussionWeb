@@ -2,9 +2,9 @@
    game.css — standalone Paddle Force page. Original art only (CSS + emoji).
    =========================================================================== */
 :root {
-  --pf-p1: #c44ec8;
-  --pf-p2: #34b27a;
-  --pf-accent: #34b27a;
+  --pf-p1: #e07b10; /* left = orange */
+  --pf-p2: #2f6fe0; /* right = blue */
+  --pf-accent: #2f6fe0;
   --pf-bg: #0a0a16;
 }
 * { box-sizing: border-box; }
@@ -248,7 +248,7 @@ html, body {
 .pf-start-btn {
   margin-top: 14px;
   background: var(--pf-p2);
-  color: #053b27;
+  color: #06214a;
   border: none;
   border-radius: 14px;
   padding: 18px 56px;
@@ -256,10 +256,10 @@ html, body {
   font-weight: 900;
   letter-spacing: 0.04em;
   cursor: pointer;
-  box-shadow: 0 8px 0 #1f6b48, 0 16px 30px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 8px 0 #1d4ba0, 0 16px 30px rgba(0, 0, 0, 0.4);
   transition: transform 0.08s, box-shadow 0.08s;
 }
-.pf-start-btn:active { transform: translateY(6px); box-shadow: 0 2px 0 #1f6b48; }
+.pf-start-btn:active { transform: translateY(6px); box-shadow: 0 2px 0 #1d4ba0; }
 .pf-controls-hint { margin: 16px 0 4px; color: #b9b0c8; font-size: 0.86rem; }
 .pf-presents { margin: 6px 0 0; color: #8a82a0; font-weight: 700; letter-spacing: 0.04em; }
 
@@ -284,7 +284,7 @@ html, body {
 }
 .pf-panel-title { margin: 0; font-weight: 900; letter-spacing: 0.08em; opacity: 0.8; }
 .pf-panel-sub { margin: 4px 0 18px; font-weight: 900; font-size: 2rem; }
-.pf-panel .pf-start-btn { background: var(--pf-p2); color: #053b27; box-shadow: 0 6px 0 #1f6b48; padding: 14px 40px; }
+.pf-panel .pf-start-btn { background: var(--pf-p2); color: #06214a; box-shadow: 0 6px 0 #1d4ba0; padding: 14px 40px; }
 .pf-link {
   display: block;
   margin: 12px auto 0;

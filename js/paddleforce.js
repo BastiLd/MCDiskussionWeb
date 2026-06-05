@@ -34,13 +34,14 @@ const CFG = {
 };
 
 const COLORS = {
-  p1: '#c44ec8',
-  p1soft: 'rgba(196,78,200,0.0)',
-  p1fill: '#bb3fbf',
-  p1glow: '#ff7bff',
-  p2: '#34b27a',
-  p2fill: '#2fa06f',
-  p2glow: '#7bffc4',
+  // Left = orange, right = blue.
+  p1: '#e07b10',
+  p1soft: 'rgba(224,123,16,0.0)',
+  p1fill: '#e07b10',
+  p1glow: '#ffb04d',
+  p2: '#2f6fe0',
+  p2fill: '#2f6fe0',
+  p2glow: '#74a8ff',
   ball: '#ffffff',
   puck: '#f5c542',
 };
@@ -337,7 +338,13 @@ export function initPaddleForce() {
     const wnx = nx * wc - ny * ws, wny = nx * ws + ny * wc;
     const dot = ball.vx * wnx + ball.vy * wny;
     ball.vx -= 2 * dot * wnx; ball.vy -= 2 * dot * wny;
-    ball.speed = Math.min(CFG.ballSpeedMax, ball.speed * 1.05);
+    // Speed only increases when the paddle is actively rotating on contact;
+    // a straight or angled (non-rotating) hit keeps the current speed.
+    const spinning = Math.abs(p.angVel || 0) > 1.3;
+    if (spinning) {
+      ball.speed = Math.min(CFG.ballSpeedMax, ball.speed * 1.22);
+      popup('BOOST!', ball.x, ball.y - 28, p.side < 0 ? COLORS.p1glow : COLORS.p2glow, 0.7);
+    }
     const vl = Math.hypot(ball.vx, ball.vy) || 1;
     ball.vx = ball.vx / vl * ball.speed; ball.vy = ball.vy / vl * ball.speed;
     ball.x += wnx * (ball.r - d + 0.5); ball.y += wny * (ball.r - d + 0.5);
@@ -347,6 +354,23 @@ export function initPaddleForce() {
     if (ball.speed > 620 && Math.random() < 0.25) popup(pick(POP.hit), ball.x, ball.y - 24, '#fff', 0.7);
     return true;
   }
+  // Shove a puck/mine with the paddle "body" (rotated rectangle vs circle).
+  function pushEntityByPaddle(p, ent) {
+    const hw = CFG.paddleW / 2, hh = paddleH(p) / 2;
+    const cs = Math.cos(-p.angle), sn = Math.sin(-p.angle);
+    const dx = ent.x - p.x, dy = ent.y - p.y;
+    const lx = dx * cs - dy * sn, ly = dx * sn + dy * cs;
+    const cx = Math.max(-hw, Math.min(hw, lx)), cy = Math.max(-hh, Math.min(hh, ly));
+    let nx = lx - cx, ny = ly - cy, d = Math.hypot(nx, ny);
+    if (d > ent.r) return;
+    if (d === 0) { nx = lx < 0 ? -1 : 1; ny = 0; d = 1; } else { nx /= d; ny /= d; }
+    const wc = Math.cos(p.angle), ws = Math.sin(p.angle);
+    const wnx = nx * wc - ny * ws, wny = nx * ws + ny * wc;
+    ent.x += wnx * (ent.r - d + 0.5); ent.y += wny * (ent.r - d + 0.5);
+    ent.vx += (p.velX || 0) * 0.8 + wnx * 140;
+    ent.vy += (p.velY || 0) * 0.8 + wny * 140;
+  }
+
   function circleHit(e) {
     const dx = ball.x - e.x, dy = ball.y - e.y, dist = Math.hypot(dx, dy), rad = ball.r + e.r;
     if (dist > rad || dist === 0) return false;
@@ -371,9 +395,19 @@ export function initPaddleForce() {
     if (phase === 'roundover') { roundoverT -= dt; stepFx(dt); if (roundoverT <= 0) afterRoundover(); return; }
     if (phase !== 'playing') { stepFx(dt); return; }
 
+    const idt = dt > 0 ? 1 / dt : 60;
+    [p1, p2].forEach((p) => { p.prevX = p.x; p.prevY = p.y; p.prevA = p.angle; });
     (p1.isAI ? controlAI : controlHuman)(p1, dt);
     (p2.isAI ? controlAI : controlHuman)(p2, dt);
-    helpers.forEach((h) => { h.y = h.owner.y + h.offset; h.x = h.owner.x; h.angle = h.owner.angle; });
+    [p1, p2].forEach((p) => {
+      p.velX = (p.x - p.prevX) * idt;
+      p.velY = (p.y - p.prevY) * idt;
+      p.angVel = (p.angle - p.prevA) * idt;
+    });
+    helpers.forEach((h) => {
+      h.y = h.owner.y + h.offset; h.x = h.owner.x; h.angle = h.owner.angle;
+      h.velX = h.owner.velX; h.velY = h.owner.velY; h.angVel = h.owner.angVel;
+    });
 
     const slow = (hasEffect(p1, 'sticky') || hasEffect(p2, 'sticky')) ? 0.6 : 1;
     if (ball.spin) { ball.vy += ball.spin * dt * 0.5; ball.spin *= 0.985; }
@@ -388,13 +422,23 @@ export function initPaddleForce() {
       puckTimer -= dt;
       if (puckTimer <= 0 && pucks.length < 2) { spawnPuck(); puckTimer = CFG.puckEvery; }
     }
-    pucks.forEach((pk) => { stepEnt(pk, dt); circleHit(pk); });
+    pucks.forEach((pk) => {
+      stepEnt(pk, dt);
+      circleHit(pk);
+      pushEntityByPaddle(p1, pk); pushEntityByPaddle(p2, pk);
+      helpers.forEach((h) => pushEntityByPaddle(h, pk));
+    });
     pucks = pucks.filter((pk) => {
       if (pk.x < -pk.r) { activate(p2, pk.type, pk); return false; }
       if (pk.x > W + pk.r) { activate(p1, pk.type, pk); return false; }
       return true;
     });
-    mines.forEach((mn) => { stepEnt(mn, dt); circleHit(mn); });
+    mines.forEach((mn) => {
+      stepEnt(mn, dt);
+      circleHit(mn);
+      pushEntityByPaddle(p1, mn); pushEntityByPaddle(p2, mn);
+      helpers.forEach((h) => pushEntityByPaddle(h, mn));
+    });
     mines = mines.filter((mn) => {
       if (mn.x < -mn.r) { explode(mn, p2); return false; }
       if (mn.x > W + mn.r) { explode(mn, p1); return false; }
@@ -486,10 +530,17 @@ export function initPaddleForce() {
     helpers.forEach((h) => drawPaddle(h, h.side < 0 ? COLORS.p1glow : COLORS.p2glow, 0.8, true));
     drawPaddle(p1, COLORS.p1glow, 1); drawPaddle(p2, COLORS.p2glow, 1);
 
-    for (let i = 0; i < trail.length; i++) { const tp = trail[i]; ctx.globalAlpha = (i / trail.length) * 0.5; ctx.fillStyle = '#fff';
+    const glow = ball && ball.lastHit ? (ball.lastHit.side < 0 ? COLORS.p1glow : COLORS.p2glow) : '#ffffff';
+    for (let i = 0; i < trail.length; i++) { const tp = trail[i]; ctx.globalAlpha = (i / trail.length) * 0.5; ctx.fillStyle = glow;
       ctx.beginPath(); ctx.arc(tp.x, tp.y, ball.r * (i / trail.length), 0, 7); ctx.fill(); }
     ctx.globalAlpha = 1;
-    if (ball) { ctx.fillStyle = '#fff'; ctx.shadowColor = '#fff'; ctx.shadowBlur = 14; ctx.beginPath(); ctx.arc(ball.x, ball.y, ball.r, 0, 7); ctx.fill(); ctx.shadowBlur = 0; }
+    if (ball) {
+      // Colored halo in the last toucher's colour, white core.
+      ctx.shadowColor = glow; ctx.shadowBlur = 24; ctx.fillStyle = glow;
+      ctx.beginPath(); ctx.arc(ball.x, ball.y, ball.r + 3, 0, 7); ctx.fill();
+      ctx.shadowBlur = 0; ctx.fillStyle = '#fff';
+      ctx.beginPath(); ctx.arc(ball.x, ball.y, ball.r, 0, 7); ctx.fill();
+    }
 
     for (const p of particles) { ctx.globalAlpha = Math.max(0, p.life / p.max); ctx.fillStyle = p.color; ctx.fillRect(p.x, p.y, p.size, p.size); }
     ctx.globalAlpha = 1;

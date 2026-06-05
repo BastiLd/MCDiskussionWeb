@@ -847,7 +847,7 @@ h2 {
   gap: 18px;
   text-decoration: none;
   color: inherit;
-  background: linear-gradient(120deg, rgba(196, 78, 200, 0.16), rgba(52, 178, 122, 0.16)), var(--card-bg);
+  background: linear-gradient(120deg, rgba(224, 123, 16, 0.16), rgba(47, 111, 224, 0.16)), var(--card-bg);
   border: 1px solid var(--border-strong);
   border-radius: var(--radius);
   padding: 18px;
@@ -864,7 +864,7 @@ h2 {
   height: 120px;
   border-radius: 10px;
   overflow: hidden;
-  background: linear-gradient(90deg, #bb3fbf 0 50%, #2fa06f 50% 100%);
+  background: linear-gradient(90deg, #e07b10 0 50%, #2f6fe0 50% 100%);
 }
 .game-launch-art .gl-p1,
 .game-launch-art .gl-p2 {
