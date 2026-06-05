@@ -253,23 +253,31 @@ function initScramble() {
 // ===========================================================================
 // Boot
 // ===========================================================================
+// Run an init step in isolation: if one feature throws, the rest (and crucially
+// the navigation) still work.
+function safe(label, fn) {
+  try {
+    fn();
+  } catch (e) {
+    console.error(`[boot] ${label} failed:`, e);
+  }
+}
+
 function boot() {
   if (isTouch) document.body.classList.add('is-touch');
 
-  initLanguage();
-  initSignatureHeadings();
-
-  // Feature modules register their `sectionchange` listeners BEFORE the router
-  // fires the first route, so they react to the initial section too.
-  initGames();
-  initComments();
-
-  initRouter();
-  initMagnets();
-  initSpotlight();
-  initReveal();
-  initTilt();
-  initScramble();
+  // Language + router first so navigation is guaranteed even if a later
+  // feature module errors out.
+  safe('language', initLanguage);
+  safe('router', initRouter);
+  safe('signature-headings', initSignatureHeadings);
+  safe('games', initGames);
+  safe('comments', initComments);
+  safe('magnets', initMagnets);
+  safe('spotlight', initSpotlight);
+  safe('reveal', initReveal);
+  safe('tilt', initTilt);
+  safe('scramble', initScramble);
 }
 
 if (document.readyState === 'loading') {
