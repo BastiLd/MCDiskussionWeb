@@ -12,7 +12,8 @@ Highlights:
 - 🌐 Full EN/DE translations, persisted in `localStorage`
 - ✨ Signature heading hover, magnetic buttons, spotlight cursor, scroll reveal, 3D tilt
   cards, GSAP text scramble — all disabled under `prefers-reduced-motion`
-- 🕹️ **Rotary Pong** (two players, rotating paddles, keyboard + touch) and a Memory bonus game
+- 🕹️ **Paddle Force** — a territory-capture Pong (vs CPU / 2-player / CPU-vs-CPU demo, best-of
+  3/5/7 rounds, 6 power-ups, keyboard + gamepad + touch, synth SFX) and a Memory bonus game
 - 💬 Supabase-backed comments with nested replies, realtime updates, honeypot + rate limit
 - 🔗 Hash-anchor navigation (`#restoreinventory`, `#games`, …) using the View Transitions API
 
@@ -24,7 +25,8 @@ css/style.css              Global styles (theme, layout, animations)
 js/config.js               Supabase URL + anon key (single source of truth)
 js/i18n.js                 EN/DE translation tables + setLanguage()
 js/app.js                  Navigation, i18n wiring, signature animations
-js/games.js                Rotary Pong + Memory game
+js/pong.js                 Paddle Force game (modes, territory, power-ups, AI, audio, fx)
+js/games.js                Games entry point (loads pong.js) + Memory game
 js/comments.js             Supabase comments
 .github/workflows/deploy.yml   Auto-deploy to GitHub Pages on push to main
 .nojekyll                  Tell Pages not to run Jekyll

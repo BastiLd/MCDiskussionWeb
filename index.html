@@ -325,42 +325,92 @@
           </p>
         </header>
 
-        <h3 class="block-title" data-i18n="pongTitle">Rotary Pong</h3>
+        <h3 class="block-title" data-i18n="pongTitle">Paddle Force</h3>
         <p class="muted" data-i18n="pongHowto">
-          Player 1: W / S move, A / D rotate. Player 2: ↑ / ↓ move, ← / → rotate.
+          P1: W A S D move · C / V rotate. P2: arrows move · , / . rotate. Capture the field to win a round.
         </p>
 
         <div class="pong-wrap" data-pong>
           <div class="pong-stage">
-            <canvas data-pong-canvas width="800" height="500" role="img"
-              aria-label="Rotary Pong game board"></canvas>
-            <div class="pong-overlay" data-pong-overlay hidden>
-              <p class="pong-result" data-pong-result></p>
-              <button type="button" class="btn btn-primary magnet" data-pong-restart data-i18n="gameRestart">
-                Restart
-              </button>
-              <p class="muted" data-i18n="gameStartHint">Press Space or Restart to play.</p>
+            <canvas data-pong-canvas width="960" height="600" role="img"
+              data-i18n-attr="aria-label:pongAria" aria-label="Paddle Force game board"></canvas>
+
+            <!-- Start / pause / match-over overlay -->
+            <div class="pong-menu" data-pong-menu hidden>
+              <div class="pong-menu-card">
+                <h4 class="pong-menu-title" data-pong-title data-i18n="pgTitle">Paddle Force</h4>
+
+                <div class="pong-settings" data-pong-settings>
+                  <fieldset class="pg-field">
+                    <legend data-i18n="pgMode">Mode</legend>
+                    <div class="seg" role="group">
+                      <button type="button" class="seg-btn" data-mode="cpu" data-i18n="pgModeCpu">vs CPU</button>
+                      <button type="button" class="seg-btn" data-mode="pvp" data-i18n="pgModePvp">2 Players</button>
+                      <button type="button" class="seg-btn" data-mode="demo" data-i18n="pgModeDemo">CPU vs CPU</button>
+                    </div>
+                  </fieldset>
+                  <fieldset class="pg-field" data-pong-diffrow>
+                    <legend data-i18n="pgDifficulty">Difficulty</legend>
+                    <div class="seg" role="group">
+                      <button type="button" class="seg-btn" data-diff="easy" data-i18n="pgDiffEasy">Easy</button>
+                      <button type="button" class="seg-btn" data-diff="medium" data-i18n="pgDiffMedium">Medium</button>
+                      <button type="button" class="seg-btn" data-diff="hard" data-i18n="pgDiffHard">Hard</button>
+                    </div>
+                  </fieldset>
+                  <fieldset class="pg-field">
+                    <legend data-i18n="pgRounds">Rounds</legend>
+                    <div class="seg" role="group">
+                      <button type="button" class="seg-btn" data-bestof="3">3</button>
+                      <button type="button" class="seg-btn" data-bestof="5">5</button>
+                      <button type="button" class="seg-btn" data-bestof="7">7</button>
+                    </div>
+                  </fieldset>
+                  <label class="pg-check">
+                    <input type="checkbox" data-powerups checked />
+                    <span data-i18n="pgPowerups">Power-ups</span>
+                  </label>
+                </div>
+
+                <div class="pong-menu-actions">
+                  <button type="button" class="btn btn-primary" data-pong-start data-i18n="pgStart">Start</button>
+                  <button type="button" class="btn btn-primary" data-pong-resume hidden data-i18n="pgResume">Resume</button>
+                  <button type="button" class="btn btn-primary" data-pong-rematch hidden data-i18n="pgRematch">Rematch</button>
+                  <button type="button" class="btn btn-ghost" data-pong-tomenu hidden data-i18n="pgMenu">Menu</button>
+                  <button type="button" class="btn btn-ghost pong-mute" data-pong-mute aria-pressed="false" aria-label="Mute">🔊</button>
+                </div>
+                <p class="muted pong-hint" data-pong-hint></p>
+              </div>
             </div>
           </div>
 
-          <!-- On-screen controls (shown on touch devices) -->
+          <p class="sr-only" data-pong-live role="status" aria-live="polite"></p>
+
+          <!-- On-screen controls (touch devices) -->
           <div class="touch-controls" data-touch-controls hidden>
             <div class="touch-pad" data-side="p1">
               <span class="touch-label" data-i18n="p1Label">Player 1</span>
-              <div class="touch-row">
-                <button type="button" data-key="w" data-i18n-attr="aria-label:ctrlUp" aria-label="Move up">▲</button>
-                <button type="button" data-key="s" data-i18n-attr="aria-label:ctrlDown" aria-label="Move down">▼</button>
-                <button type="button" data-key="a" data-i18n-attr="aria-label:ctrlRotL" aria-label="Rotate CCW">⟲</button>
-                <button type="button" data-key="d" data-i18n-attr="aria-label:ctrlRotR" aria-label="Rotate CW">⟳</button>
+              <div class="dpad">
+                <button type="button" class="d-up" data-key="w" data-i18n-attr="aria-label:ctrlUp" aria-label="Up">▲</button>
+                <button type="button" class="d-left" data-key="a" data-i18n-attr="aria-label:ctrlLeft" aria-label="Left">◀</button>
+                <button type="button" class="d-right" data-key="d" data-i18n-attr="aria-label:ctrlRight" aria-label="Right">▶</button>
+                <button type="button" class="d-down" data-key="s" data-i18n-attr="aria-label:ctrlDown" aria-label="Down">▼</button>
+              </div>
+              <div class="rot-row">
+                <button type="button" data-key="c" data-i18n-attr="aria-label:ctrlRotL" aria-label="Rotate CCW">⟲</button>
+                <button type="button" data-key="v" data-i18n-attr="aria-label:ctrlRotR" aria-label="Rotate CW">⟳</button>
               </div>
             </div>
             <div class="touch-pad" data-side="p2">
               <span class="touch-label" data-i18n="p2Label">Player 2</span>
-              <div class="touch-row">
-                <button type="button" data-key="ArrowUp" data-i18n-attr="aria-label:ctrlUp" aria-label="Move up">▲</button>
-                <button type="button" data-key="ArrowDown" data-i18n-attr="aria-label:ctrlDown" aria-label="Move down">▼</button>
-                <button type="button" data-key="ArrowLeft" data-i18n-attr="aria-label:ctrlRotL" aria-label="Rotate CCW">⟲</button>
-                <button type="button" data-key="ArrowRight" data-i18n-attr="aria-label:ctrlRotR" aria-label="Rotate CW">⟳</button>
+              <div class="dpad">
+                <button type="button" class="d-up" data-key="ArrowUp" data-i18n-attr="aria-label:ctrlUp" aria-label="Up">▲</button>
+                <button type="button" class="d-left" data-key="ArrowLeft" data-i18n-attr="aria-label:ctrlLeft" aria-label="Left">◀</button>
+                <button type="button" class="d-right" data-key="ArrowRight" data-i18n-attr="aria-label:ctrlRight" aria-label="Right">▶</button>
+                <button type="button" class="d-down" data-key="ArrowDown" data-i18n-attr="aria-label:ctrlDown" aria-label="Down">▼</button>
+              </div>
+              <div class="rot-row">
+                <button type="button" data-key="," data-i18n-attr="aria-label:ctrlRotL" aria-label="Rotate CCW">⟲</button>
+                <button type="button" data-key="." data-i18n-attr="aria-label:ctrlRotR" aria-label="Rotate CW">⟳</button>
               </div>
             </div>
           </div>

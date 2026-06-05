@@ -680,6 +680,165 @@ h2 {
   border-color: var(--accent-color);
 }
 
+/* --- Paddle Force menu overlay --- */
+.pong-menu {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(7, 7, 17, 0.74);
+  backdrop-filter: blur(4px);
+  z-index: 2;
+}
+.pong-menu[hidden] {
+  display: none;
+}
+.pong-menu-card {
+  width: min(440px, 96%);
+  max-height: 100%;
+  overflow: auto;
+  text-align: center;
+  background: rgba(20, 18, 30, 0.92);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.pong-menu-title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+.pong-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.pg-field {
+  border: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.pg-field legend {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  padding: 0;
+}
+.seg {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+}
+.seg-btn {
+  flex: 1 1 auto;
+  min-width: 84px;
+  padding: 9px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-strong);
+  background: var(--card-bg);
+  color: var(--text-color);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+.seg-btn:hover {
+  border-color: var(--accent-color);
+}
+.seg-btn.active {
+  background: var(--accent-soft);
+  border-color: var(--accent-color);
+  color: var(--accent-strong);
+}
+.pg-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.pg-check input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent-color);
+}
+.pong-menu-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+.pong-mute {
+  font-size: 1.05rem;
+  padding: 9px 12px;
+}
+.pong-hint {
+  margin: 0;
+  font-size: 0.84rem;
+}
+
+/* --- touch d-pad --- */
+.dpad {
+  display: grid;
+  grid-template-columns: repeat(3, 46px);
+  grid-template-rows: repeat(2, 46px);
+  gap: 6px;
+  justify-content: center;
+  margin: 0 auto 8px;
+}
+.rot-row {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+}
+.dpad button,
+.rot-row button {
+  padding: 0;
+  font-size: 1.05rem;
+  background: var(--card-bg);
+  color: var(--text-color);
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+.rot-row button {
+  width: 64px;
+  height: 40px;
+}
+.dpad .d-up {
+  grid-column: 2;
+  grid-row: 1;
+}
+.dpad .d-left {
+  grid-column: 1;
+  grid-row: 2;
+}
+.dpad .d-down {
+  grid-column: 2;
+  grid-row: 2;
+}
+.dpad .d-right {
+  grid-column: 3;
+  grid-row: 2;
+}
+.dpad button:active,
+.rot-row button:active {
+  background: var(--accent-soft);
+  border-color: var(--accent-color);
+}
+
 /* ------------------------------ Memory ------------------------------ */
 .memory {
   max-width: 520px;
