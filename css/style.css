@@ -1360,6 +1360,86 @@ h2 {
   font-size: 0.95rem;
 }
 
+/* ---------------------------- Mod cards & manager ---------------------------- */
+.mod-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.mod-head h3 {
+  margin: 0;
+}
+.mod-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  object-fit: cover;
+  background: var(--bg-elev);
+}
+.mod-icon-ph {
+  display: inline-grid;
+  place-items: center;
+  font-size: 1.5rem;
+}
+.mod-icon-sm {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+}
+.mod-card p {
+  margin: 0 0 10px;
+  color: var(--muted);
+}
+.mod-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.mod-stat {
+  font-size: 0.78rem;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 3px 10px;
+}
+.mod-stat strong {
+  color: var(--accent-strong);
+}
+.mod-version {
+  color: var(--accent-strong);
+  border-color: var(--accent-color);
+}
+.mod-form-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+.mod-form-row .field {
+  flex: 1 1 200px;
+  margin-bottom: 0;
+}
+.mod-form-row .btn {
+  margin-bottom: 2px;
+}
+.mod-preview {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+.admin-mods {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 14px;
+}
+.mod-row .admin-comment-head {
+  align-items: center;
+}
+
 /* ------------------------------ Footer ------------------------------ */
 .site-footer {
   border-top: 1px solid var(--border);

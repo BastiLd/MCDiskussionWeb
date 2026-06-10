@@ -16,6 +16,7 @@
 import { getSupabase } from './supabaseClient.js';
 import { t } from './i18n.js';
 import { setAnalyticsAdmin } from './analytics.js';
+import { buildModRecord } from './modsApi.js';
 
 const ADMIN_REPLY_NAME = 'BastiLd (Mod)';
 
@@ -33,6 +34,10 @@ export function initAdmin() {
   const statsEl = section.querySelector('[data-admin-stats]');
   const commentsEl = section.querySelector('[data-admin-comments]');
   const navItem = document.querySelector('[data-admin-nav]');
+  const modsEl = section.querySelector('[data-admin-mods]');
+  const modForm = section.querySelector('[data-mod-form]');
+  const modPreview = section.querySelector('[data-mod-preview]');
+  const modMsg = section.querySelector('[data-mod-msg]');
 
   let currentUser = null;
   let isAdmin = false;
@@ -116,7 +121,7 @@ export function initAdmin() {
 
   // ---- dashboard ----------------------------------------------------------
   async function renderDashboard() {
-    await Promise.all([renderStats(), renderComments()]);
+    await Promise.all([renderStats(), renderComments(), renderMods()]);
   }
 
   async function renderStats() {
@@ -187,6 +192,154 @@ export function initAdmin() {
     }
     data.forEach((c) => commentsEl.appendChild(buildAdminComment(c)));
   }
+
+  // ---- mods manager -------------------------------------------------------
+  let fetchedRecord = null;
+
+  function setModMsg(text, kind) {
+    if (!modMsg) return;
+    modMsg.textContent = text;
+    modMsg.className = 'form-msg' + (kind ? ' ' + kind : '');
+  }
+
+  async function renderMods() {
+    if (!modsEl) return;
+    modsEl.innerHTML = '';
+    modsEl.appendChild(makeMuted(t('adminLoading')));
+    const { data, error } = await sb.from('mods').select('*').order('sort').order('created_at');
+    modsEl.innerHTML = '';
+    if (error) {
+      modsEl.appendChild(makeMuted(t('modTableMissing'), 'error'));
+      return;
+    }
+    if (!data || !data.length) {
+      modsEl.appendChild(makeMuted(t('modListEmpty')));
+      return;
+    }
+    data.forEach((mod) => modsEl.appendChild(buildModRow(mod)));
+  }
+
+  function buildModRow(mod) {
+    const row = document.createElement('article');
+    row.className = 'admin-comment mod-row' + (mod.visible ? '' : ' status-hidden');
+
+    const head = document.createElement('div');
+    head.className = 'admin-comment-head';
+    if (mod.icon_url) {
+      const img = document.createElement('img');
+      img.src = mod.icon_url;
+      img.alt = '';
+      img.className = 'mod-icon mod-icon-sm';
+      head.appendChild(img);
+    }
+    const name = document.createElement('span');
+    name.className = 'comment-author';
+    name.textContent = mod.name;
+    const meta = document.createElement('span');
+    meta.className = 'comment-time';
+    meta.textContent = `${mod.slug} · ⬇ ${(mod.downloads || 0).toLocaleString()} · ${
+      mod.fetched_at ? formatDate(mod.fetched_at) : '—'
+    }`;
+    const badge = document.createElement('span');
+    badge.className = 'status-badge ' + (mod.visible ? 'visible' : 'hidden');
+    badge.textContent = mod.visible ? t('status_visible') : t('status_hidden');
+    head.append(name, badge, meta);
+
+    const actions = document.createElement('div');
+    actions.className = 'admin-actions';
+    actions.appendChild(btn(t('modRefetch'), () => refetchMod(mod)));
+    actions.appendChild(btn(mod.visible ? t('adminHide') : t('adminShow'), async () => {
+      const { error } = await sb.from('mods').update({ visible: !mod.visible }).eq('id', mod.id);
+      if (error) alert(t('adminLoadError'));
+      renderMods();
+    }));
+    actions.appendChild(btn(t('adminDelete'), async () => {
+      if (!confirm(t('modDeleteConfirm').replace('{n}', mod.name))) return;
+      const { error } = await sb.from('mods').delete().eq('id', mod.id);
+      if (error) alert(t('adminLoadError'));
+      renderMods();
+    }, 'danger'));
+
+    row.append(head, actions);
+    return row;
+  }
+
+  async function refetchMod(mod) {
+    try {
+      const { record } = await buildModRecord({
+        modrinthSlug: mod.modrinth_slug,
+        githubRepo: mod.github_repo,
+      });
+      // keep manual fields, refresh the fetched ones
+      const patch = {
+        downloads: record.downloads,
+        followers: record.followers,
+        latest_version: record.latest_version,
+        game_versions: record.game_versions,
+        icon_url: record.icon_url || mod.icon_url,
+        data: record.data,
+        fetched_at: record.fetched_at,
+      };
+      const { error } = await sb.from('mods').update(patch).eq('id', mod.id);
+      if (error) throw new Error(error.message);
+      renderMods();
+    } catch (e) {
+      alert(`${t('modFetchError')} ${e.message}`);
+    }
+  }
+
+  function bindModForm() {
+    if (!modForm) return;
+    modForm.querySelector('[data-mod-fetch]')?.addEventListener('click', async () => {
+      const fd = new FormData(modForm);
+      const modrinthSlug = (fd.get('modrinth_slug') || '').toString().trim();
+      const githubRepo = (fd.get('github_repo') || '').toString().trim();
+      if (!modrinthSlug && !githubRepo) {
+        setModMsg(t('modFetchNoSource'), 'error');
+        return;
+      }
+      setModMsg(t('adminLoading'));
+      try {
+        const { record, warnings } = await buildModRecord({ modrinthSlug, githubRepo });
+        fetchedRecord = record;
+        modForm.querySelector('[name="name"]').value = record.name || '';
+        modForm.querySelector('[name="summary_en"]').value = record.summary_en || '';
+        if (modPreview) modPreview.hidden = false;
+        setModMsg(warnings.length ? warnings.join(' · ') : t('modFetchOk'), warnings.length ? 'error' : 'success');
+      } catch (e) {
+        fetchedRecord = null;
+        setModMsg(`${t('modFetchError')} ${e.message}`, 'error');
+      }
+    });
+
+    modForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!fetchedRecord) {
+        setModMsg(t('modFetchNoSource'), 'error');
+        return;
+      }
+      const fd = new FormData(modForm);
+      const row = {
+        ...fetchedRecord,
+        name: (fd.get('name') || fetchedRecord.name).toString().trim(),
+        summary_en: (fd.get('summary_en') || '').toString().trim(),
+        summary_de: (fd.get('summary_de') || '').toString().trim(),
+        sort: parseInt(fd.get('sort'), 10) || 0,
+        visible: true,
+      };
+      const { error } = await sb.from('mods').upsert(row, { onConflict: 'slug' });
+      if (error) {
+        setModMsg(`${t('modFetchError')} ${error.message}`, 'error');
+        return;
+      }
+      fetchedRecord = null;
+      modForm.reset();
+      if (modPreview) modPreview.hidden = true;
+      setModMsg(t('modSaved'), 'success');
+      renderMods();
+    });
+  }
+  bindModForm();
 
   function buildAdminComment(c) {
     const row = document.createElement('article');

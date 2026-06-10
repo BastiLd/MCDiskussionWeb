@@ -164,6 +164,51 @@ on conflict (user_id) do nothing;
 That's it. Open the site, click 🔒, sign in — the **Dashboard** tab appears. Your own visits
 aren't counted in the stats while you're logged in.
 
+## Dynamic mods (one-time setup)
+
+The **Mods** section renders from a Supabase-cached table. In the dashboard you add a mod by
+entering its **Modrinth slug** and/or **GitHub repo** — name, icon, description, downloads and
+versions are fetched automatically from the public APIs and stored; visitors only ever read
+the cache (no API rate-limit issues).
+
+Run this once in the Supabase **SQL Editor**:
+
+```sql
+create table if not exists public.mods (
+  id uuid primary key default uuid_generate_v4(),
+  slug text unique not null,
+  name text not null,
+  summary_en text,
+  summary_de text,
+  icon_url text,
+  modrinth_slug text,
+  github_repo text,
+  downloads integer not null default 0,
+  followers integer not null default 0,
+  latest_version text,
+  game_versions jsonb,
+  modrinth_url text,
+  github_url text,
+  data jsonb,
+  sort integer not null default 0,
+  visible boolean not null default true,
+  fetched_at timestamptz,
+  created_at timestamptz not null default now()
+);
+
+alter table public.mods enable row level security;
+
+create policy "Public can read visible mods" on public.mods
+  for select using (visible = true or public.is_admin());
+
+create policy "Admins manage mods" on public.mods
+  for all using (public.is_admin()) with check (public.is_admin());
+```
+
+Then: Dashboard → **Manage mods** → enter e.g. `restoreinv` (Modrinth) and/or
+`BastiLd/Restore-Inv` (GitHub) → **Fetch info** → review → **Save mod**. Use **Refresh data**
+on a mod row to re-pull download counts whenever you like.
+
 ## Deploy to GitHub Pages
 
 ### Option A — GitHub Actions (included)

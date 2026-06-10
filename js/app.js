@@ -9,6 +9,7 @@ import { initComments } from './comments.js';
 import { initAnalytics } from './analytics.js';
 import { initAdmin } from './admin.js';
 import { initEffects } from './effects.js';
+import { initModsRender } from './modsRender.js';
 
 const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)');
 const isTouch =
@@ -278,6 +279,7 @@ function boot() {
   safe('signature-headings', initSignatureHeadings);
   safe('games', initGames);
   safe('comments', initComments);
+  safe('mods-render', initModsRender);
   safe('admin', initAdmin);
   safe('magnets', initMagnets);
   safe('spotlight', initSpotlight);

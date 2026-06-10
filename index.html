@@ -364,13 +364,14 @@
           </p>
         </header>
 
-        <div class="mods-grid">
-          <article class="card tilt reveal beam">
+        <div class="mods-grid" data-mods-grid>
+          <!-- Static fallback: replaced by dynamic cards once the mods table has rows -->
+          <article class="card tilt reveal beam" data-mods-fallback>
             <h3>RestoreInventory</h3>
             <p data-i18n="modsRestoreCard">Inventory backups &amp; restoration for Fabric.</p>
             <a class="btn btn-primary" href="#restoreinventory" data-nav data-i18n="modsView">View</a>
           </article>
-          <article class="card card-muted reveal">
+          <article class="card card-muted reveal" data-mods-soon>
             <h3 data-i18n="modsSoonTitle">More coming soon</h3>
             <p data-i18n="modsSoon">New mods will appear here. Have an idea? Drop it in the comments.</p>
           </article>
@@ -422,6 +423,47 @@
 
           <h3 class="block-title" data-i18n="adminCommentsTitle">Comment moderation</h3>
           <div class="admin-comments" data-admin-comments></div>
+
+          <!-- Mods manager: add by Modrinth slug / GitHub repo, auto-fetch info -->
+          <h3 class="block-title" data-i18n="adminModsTitle">Manage mods</h3>
+          <form class="comment-form mod-form" data-mod-form novalidate>
+            <div class="mod-form-row">
+              <div class="field">
+                <label for="mod-mr" data-i18n="modFormModrinth">Modrinth slug</label>
+                <input id="mod-mr" name="modrinth_slug" type="text" placeholder="restoreinv" autocomplete="off" />
+              </div>
+              <div class="field">
+                <label for="mod-gh" data-i18n="modFormGithub">GitHub repo (owner/repo)</label>
+                <input id="mod-gh" name="github_repo" type="text" placeholder="BastiLd/Restore-Inv" autocomplete="off" />
+              </div>
+              <button type="button" class="btn btn-primary" data-mod-fetch data-i18n="modFormFetch">Fetch info</button>
+            </div>
+            <div class="mod-preview" data-mod-preview hidden>
+              <div class="mod-form-row">
+                <div class="field">
+                  <label for="mod-name" data-i18n="modFormName">Name</label>
+                  <input id="mod-name" name="name" type="text" />
+                </div>
+                <div class="field">
+                  <label for="mod-sort" data-i18n="modFormSort">Sort</label>
+                  <input id="mod-sort" name="sort" type="number" value="0" />
+                </div>
+              </div>
+              <div class="field">
+                <label for="mod-sum-en" data-i18n="modFormSumEn">Summary (EN)</label>
+                <textarea id="mod-sum-en" name="summary_en" rows="2" maxlength="300"></textarea>
+              </div>
+              <div class="field">
+                <label for="mod-sum-de" data-i18n="modFormSumDe">Summary (DE)</label>
+                <textarea id="mod-sum-de" name="summary_de" rows="2" maxlength="300"></textarea>
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary" data-i18n="modFormSave">Save mod</button>
+              </div>
+            </div>
+            <span class="form-msg" data-mod-msg role="status" aria-live="polite"></span>
+          </form>
+          <div class="admin-mods" data-admin-mods></div>
         </div>
       </section>
     </main>
