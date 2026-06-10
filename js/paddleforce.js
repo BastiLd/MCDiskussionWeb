@@ -18,9 +18,9 @@ const CFG = {
   paddleW: 20,
   paddleH: 130,
   moveSpeed: 560,
-  rotSpeed: 3.0, // rad/s while a rotate key is HELD (continuous 360°)
-  rotHoldMs: 160, // press shorter than this = clean 90° snap instead
-  rotEase: 14, // how quickly the visible angle eases to its target
+  rotSpeed: 3.2, // rad/s while a rotate key is HELD (continuous 360°)
+  rotHoldMs: 150, // press shorter than this = clean 90° snap instead
+  rotEase: 16, // how quickly the visible angle eases to its target (crisp snaps)
   ballR: 13,
   ballSpeed: 440,
   ballSpeedMax: 980,
@@ -405,8 +405,9 @@ export function initPaddleForce() {
     p.vx += (dvx - p.vx) * Math.min(1, c.accel * dt);
     p.x += p.vx * dt;
 
-    // Rotation: deliberate boost spin on contact, otherwise angle the face
-    // toward the far side, and settle back to a clean 90° step when idle.
+    // Rotation: deliberate boost spin on contact, otherwise tilt the face so
+    // the ball is sent AWAY from the opponent (toward the open corner), and
+    // settle back to a clean 90° step when idle.
     if (coming && distX < 90 && p.wantBoost && p.boosting <= 0) {
       p.boosting = 0.22;
       p.boostDir = ball.y < p.y ? -1 : 1;
@@ -415,9 +416,14 @@ export function initPaddleForce() {
     if (p.boosting > 0) {
       p.boosting -= dt;
       p.targetAngle += p.boostDir * CFG.rotSpeed * 3 * dt;
-    } else if (coming && distX < 280) {
-      const aim = (ball.y < H / 2 ? 1 : -1) * (p.side < 0 ? 1 : -1) * 0.45;
-      p.targetAngle += (aim - p.targetAngle) * Math.min(1, 3 * dt);
+    } else if (coming && distX < 320) {
+      // Aim at the corner farthest from the opponent: a tilted face deflects
+      // the ball vertically, so pick the tilt that drives it past them.
+      const foe = p === p1 ? p2 : p1;
+      const goAwayFromFoe = foe.y > H / 2 ? -1 : 1; // send ball to the emptier half
+      const intent = c.aggro; // hard CPU commits to sharper angles
+      const aim = goAwayFromFoe * (p.side < 0 ? 1 : -1) * (0.3 + intent * 0.35);
+      p.targetAngle += (aim - p.targetAngle) * Math.min(1, 3.2 * dt);
     } else {
       const rest = Math.round(p.targetAngle / HALF_PI) * HALF_PI;
       p.targetAngle += (rest - p.targetAngle) * Math.min(1, 2.5 * dt);

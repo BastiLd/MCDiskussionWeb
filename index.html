@@ -370,15 +370,63 @@
           </div>
         </a>
 
-        <!-- Bonus: Memory match -->
-        <h3 class="block-title" data-i18n="memoryTitle">Memory Match</h3>
-        <p class="muted" data-i18n="memoryIntro">Bonus round — flip the cards and find every pair.</p>
-        <div class="memory" data-memory>
-          <div class="memory-bar">
-            <span><span data-i18n="memoryMoves">Moves</span>: <strong data-memory-moves>0</strong></span>
-            <button type="button" class="btn btn-ghost" data-memory-restart data-i18n="memoryRestart">New game</button>
+        <!-- Bonus mini-games: Memory + Tic-Tac-Toe side by side, Connect Four below -->
+        <div class="minigames-grid">
+          <div class="minigame">
+            <h3 class="block-title" data-i18n="memoryTitle">Memory Match</h3>
+            <p class="muted" data-i18n="memoryIntro">Bonus round — flip the cards and find every pair.</p>
+            <div class="memory" data-memory>
+              <div class="memory-bar">
+                <span>
+                  <span data-i18n="memoryMoves">Moves</span>: <strong data-memory-moves>0</strong>
+                  · <span data-i18n="memoryBest">Best</span>: <strong data-memory-best>–</strong>
+                </span>
+                <button type="button" class="btn btn-ghost" data-memory-restart data-i18n="memoryRestart">New game</button>
+              </div>
+              <div class="memory-grid" data-memory-grid></div>
+            </div>
           </div>
-          <div class="memory-grid" data-memory-grid></div>
+
+          <div class="minigame">
+            <h3 class="block-title" data-i18n="tttTitle">Tic-Tac-Toe</h3>
+            <p class="muted" data-i18n="tttIntro">Three in a row wins — play a friend or the CPU.</p>
+            <div class="ttt" data-ttt>
+              <div class="mini-score" aria-live="polite">
+                <span class="ms-cell"><strong class="p1" data-ttt-score-x>0</strong><span>X</span></span>
+                <span class="ms-cell"><strong data-ttt-score-draw>0</strong><span data-i18n="scoreDraws">Draws</span></span>
+                <span class="ms-cell"><strong class="p2" data-ttt-score-o>0</strong><span>O</span></span>
+              </div>
+              <div class="mini-bar">
+                <div class="mini-modes" role="group">
+                  <button type="button" class="btn btn-ghost active" data-ttt-mode="cpu" data-i18n="modeVsCpu">vs CPU</button>
+                  <button type="button" class="btn btn-ghost" data-ttt-mode="pvp" data-i18n="modeTwoPlayers">2 players</button>
+                </div>
+                <button type="button" class="btn btn-ghost" data-ttt-restart data-i18n="miniNewGame">New game</button>
+              </div>
+              <p class="muted mini-status" data-ttt-status role="status" aria-live="polite"></p>
+              <div class="ttt-grid" data-ttt-grid></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bonus: Connect Four, full width below -->
+        <h3 class="block-title" data-i18n="c4Title">Connect Four</h3>
+        <p class="muted" data-i18n="c4Intro">Drop your discs — four in a row wins the round.</p>
+        <div class="c4" data-c4>
+          <div class="mini-score" aria-live="polite">
+            <span class="ms-cell"><strong class="p1" data-c4-score-p1>0</strong><span data-i18n="c4P1">Orange</span></span>
+            <span class="ms-cell"><strong data-c4-score-draw>0</strong><span data-i18n="scoreDraws">Draws</span></span>
+            <span class="ms-cell"><strong class="p2" data-c4-score-p2>0</strong><span data-i18n="c4P2">Blue</span></span>
+          </div>
+          <div class="mini-bar">
+            <div class="mini-modes" role="group">
+              <button type="button" class="btn btn-ghost active" data-c4-mode="cpu" data-i18n="modeVsCpu">vs CPU</button>
+              <button type="button" class="btn btn-ghost" data-c4-mode="pvp" data-i18n="modeTwoPlayers">2 players</button>
+            </div>
+            <button type="button" class="btn btn-ghost" data-c4-restart data-i18n="miniNewGame">New game</button>
+          </div>
+          <p class="muted mini-status" data-c4-status role="status" aria-live="polite"></p>
+          <div class="c4-board" data-c4-board></div>
         </div>
       </section>
 

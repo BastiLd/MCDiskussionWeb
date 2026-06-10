@@ -17,6 +17,7 @@ import { getSupabase } from './supabaseClient.js';
 import { t } from './i18n.js';
 import { setAnalyticsAdmin } from './analytics.js';
 import { buildModRecord } from './modsApi.js';
+import { MOD_LAYOUTS } from './modsRender.js';
 
 const ADMIN_REPLY_NAME = 'BastiLd (Mod)';
 
@@ -275,6 +276,29 @@ export function initAdmin() {
 
     const actions = document.createElement('div');
     actions.className = 'admin-actions';
+
+    // Per-mod card layout (where downloads/buttons sit on the public card)
+    const layoutSel = document.createElement('select');
+    layoutSel.className = 'mod-layout-select';
+    layoutSel.title = t('modLayoutTitle');
+    layoutSel.setAttribute('aria-label', t('modLayoutTitle'));
+    Object.keys(MOD_LAYOUTS).forEach((key) => {
+      const opt = document.createElement('option');
+      opt.value = key;
+      opt.textContent = t('modLayout_' + key);
+      layoutSel.appendChild(opt);
+    });
+    layoutSel.value = (mod.data && mod.data.layout) || 'standard';
+    layoutSel.addEventListener('change', async () => {
+      const { error } = await sb
+        .from('mods')
+        .update({ data: { ...(mod.data || {}), layout: layoutSel.value } })
+        .eq('id', mod.id);
+      if (error) alert(t('adminLoadError'));
+      renderMods();
+    });
+    actions.appendChild(layoutSel);
+
     actions.appendChild(btn(t('modRefetch'), () => refetchMod(mod)));
     actions.appendChild(btn(mod.visible ? t('adminHide') : t('adminShow'), async () => {
       const { error } = await sb.from('mods').update({ visible: !mod.visible }).eq('id', mod.id);
@@ -298,14 +322,14 @@ export function initAdmin() {
         modrinthSlug: mod.modrinth_slug,
         githubRepo: mod.github_repo,
       });
-      // keep manual fields, refresh the fetched ones
+      // keep manual fields (incl. the chosen card layout), refresh the fetched ones
       const patch = {
         downloads: record.downloads,
         followers: record.followers,
         latest_version: record.latest_version,
         game_versions: record.game_versions,
         icon_url: record.icon_url || mod.icon_url,
-        data: record.data,
+        data: { ...record.data, layout: mod.data?.layout },
         fetched_at: record.fetched_at,
       };
       const { error } = await sb.from('mods').update(patch).eq('id', mod.id);

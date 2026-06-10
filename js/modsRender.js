@@ -10,6 +10,14 @@ import { getSupabase } from './supabaseClient.js';
 import { t, getLanguage } from './i18n.js';
 import { observeReveal } from './effects.js';
 
+/** Card block order presets; the key is stored per mod in mods.data.layout. */
+export const MOD_LAYOUTS = {
+  standard: ['head', 'summary', 'stats', 'actions'],
+  downloads_top: ['stats', 'head', 'summary', 'actions'],
+  downloads_under_title: ['head', 'stats', 'summary', 'actions'],
+  buttons_top: ['head', 'actions', 'summary', 'stats'],
+};
+
 export function initModsRender() {
   const grid = document.querySelector('[data-mods-grid]');
   if (!grid) return;
@@ -75,17 +83,16 @@ export function initModsRender() {
     const title = document.createElement('h3');
     title.textContent = mod.name;
     head.appendChild(title);
-    card.appendChild(head);
 
     const summary = document.createElement('p');
     const lang = getLanguage();
     summary.textContent =
       (lang === 'de' && mod.summary_de) ? mod.summary_de : (mod.summary_en || mod.summary_de || '');
-    card.appendChild(summary);
 
     // Stats row: count-up downloads + latest version badge
     const stats = document.createElement('div');
     stats.className = 'mod-stats';
+    let countEl = null;
     if (mod.downloads > 0) {
       const dl = document.createElement('span');
       dl.className = 'mod-stat';
@@ -94,7 +101,7 @@ export function initModsRender() {
       num.textContent = '0';
       dl.append(num, ' ⬇ ', document.createTextNode(t('modDownloads')));
       stats.appendChild(dl);
-      observeReveal(num);
+      countEl = num;
     }
     if (mod.latest_version) {
       const v = document.createElement('span');
@@ -108,14 +115,23 @@ export function initModsRender() {
       gv.textContent = `MC ${mod.game_versions[0]} – ${mod.game_versions[mod.game_versions.length - 1]}`;
       stats.appendChild(gv);
     }
-    card.appendChild(stats);
 
     const actions = document.createElement('div');
     actions.className = 'card-actions';
     if (mod.modrinth_url) actions.appendChild(linkBtn(mod.modrinth_url, t('btnModrinth'), 'btn btn-primary', mod.slug));
     if (mod.github_url) actions.appendChild(linkBtn(mod.github_url, 'GitHub', 'btn btn-ghost', mod.slug));
-    card.appendChild(actions);
+
+    // The owner can rearrange the card blocks per mod (set in the dashboard,
+    // stored in mods.data.layout). Unknown/missing values fall back to standard.
+    const blocks = { head, summary, stats, actions };
+    layoutOrder(mod).forEach((key) => card.appendChild(blocks[key]));
+    if (countEl) observeReveal(countEl); // after the block is in the card
     return card;
+  }
+
+  function layoutOrder(mod) {
+    const key = mod.data && mod.data.layout;
+    return MOD_LAYOUTS[key] || MOD_LAYOUTS.standard;
   }
 
   function linkBtn(href, label, cls, slug) {

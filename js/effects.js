@@ -3,7 +3,7 @@
 //
 //  • Interactive dot grid     (background canvas; dots glow/flee near cursor)
 //  • Comet cursor + sparks    (foreground canvas; same rAF loop as the grid)
-//  • Holo glint on tilt cards (CSS vars driven by pointer)
+//  • Glare sweep on tilt cards (silver band, CSS hover animation)
 //  • Text shatter on click    (sig-heading letters explode & reassemble)
 //  • Scroll-Reveal 2.0        (word-by-word, directions, count-up numbers)
 //  • Magnetic lists           (items lift toward the cursor)
@@ -161,17 +161,11 @@ function initCanvasFx() {
 }
 
 // ===========================================================================
-// Holo glint on tilt cards (rainbow sheen follows the pointer)
+// Glare on tilt cards — a silver band sweeps top-left → bottom-right on hover
+// (the animation itself lives in CSS, see .holo in style.css)
 // ===========================================================================
 function initHolo() {
-  document.querySelectorAll('.tilt').forEach((card) => {
-    card.classList.add('holo');
-    card.addEventListener('mousemove', (e) => {
-      const r = card.getBoundingClientRect();
-      card.style.setProperty('--hx', `${((e.clientX - r.left) / r.width) * 100}%`);
-      card.style.setProperty('--hy', `${((e.clientY - r.top) / r.height) * 100}%`);
-    });
-  });
+  document.querySelectorAll('.tilt').forEach((card) => card.classList.add('holo'));
 }
 
 // ===========================================================================
