@@ -327,8 +327,13 @@
           </p>
         </header>
 
-        <h3 class="block-title" data-i18n="pongTitle">Paddle Force</h3>
-        <a class="game-launch tilt beam" href="game.html">
+        <h3 class="block-title" data-i18n="pfOrigTitle">Paddle Force (Original)</h3>
+        <a
+          class="game-launch tilt beam"
+          href="game.html"
+          data-track="game_launch"
+          data-track-label="paddleforce-original"
+        >
           <div class="game-launch-art" aria-hidden="true">
             <span class="gl-p1"></span>
             <span class="gl-ball"></span>
@@ -336,6 +341,28 @@
           </div>
           <div class="game-launch-body">
             <h4>Paddle Force</h4>
+            <p class="muted" data-i18n="pfOrigDesc">
+              The original by Flobotron — © 2019 Luke Pacholski, Bobby Richter &amp; Devon Bird.
+              Hosted here with the developers' permission.
+            </p>
+            <span class="btn btn-primary" data-i18n="pgPlayFull">▶ Play fullscreen</span>
+          </div>
+        </a>
+
+        <h3 class="block-title" data-i18n="pongTitle">Paddle Force Classic</h3>
+        <a
+          class="game-launch tilt beam"
+          href="game-classic.html"
+          data-track="game_launch"
+          data-track-label="paddleforce-classic"
+        >
+          <div class="game-launch-art" aria-hidden="true">
+            <span class="gl-p1"></span>
+            <span class="gl-ball"></span>
+            <span class="gl-p2"></span>
+          </div>
+          <div class="game-launch-body">
+            <h4>Paddle Force Classic</h4>
             <p class="muted" data-i18n="pongHowto">
               Capture the field to win a round. vs CPU, 2 players or a CPU demo — 6 power-ups, best of 3/5/7.
             </p>
@@ -420,6 +447,9 @@
 
           <h3 class="block-title" data-i18n="adminStatsTitle">Statistics</h3>
           <div data-admin-stats></div>
+
+          <h3 class="block-title" data-i18n="adminGamesTitle">Games</h3>
+          <div data-admin-games></div>
 
           <h3 class="block-title" data-i18n="adminCommentsTitle">Comment moderation</h3>
           <div class="admin-comments" data-admin-comments></div>

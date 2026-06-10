@@ -12,8 +12,12 @@ Highlights:
 - 🌐 Full EN/DE translations, persisted in `localStorage`
 - ✨ Signature heading hover, magnetic buttons, spotlight cursor, scroll reveal, 3D tilt
   cards, GSAP text scramble — all disabled under `prefers-reduced-motion`
-- 🕹️ **Paddle Force** — a territory-capture Pong (vs CPU / 2-player / CPU-vs-CPU demo, best-of
-  3/5/7 rounds, 6 power-ups, keyboard + gamepad + touch, synth SFX) and a Memory bonus game
+- 🕹️ **Paddle Force (Original)** — the original game by Flobotron, © 2019 Luke Pacholski,
+  Bobby Richter & Devon Bird, hosted in `paddleforce/` with the developers' permission
+  (`game.html` wraps it full-screen)
+- 🕹️ **Paddle Force Classic** — BastiLd's remake: territory-capture Pong (vs CPU / 2-player /
+  CPU-vs-CPU demo, best-of 3/5/7 rounds, 6 power-ups, keyboard + gamepad + touch, synth SFX)
+  on `game-classic.html`, plus a Memory bonus game
 - 💬 Supabase-backed comments with nested replies, realtime updates, honeypot + rate limit
 - 🔗 Hash-anchor navigation (`#restoreinventory`, `#games`, …) using the View Transitions API
 
@@ -21,12 +25,16 @@ Highlights:
 
 ```
 index.html                 Main page: nav + all sections
+game.html                  Paddle Force (Original) — full-screen iframe wrapper
+paddleforce/               The original game by Flobotron (HTML, JS, art, music, sounds)
+game-classic.html          Paddle Force Classic — BastiLd's remake (standalone page)
 css/style.css              Global styles (theme, layout, animations)
+css/game.css               Styles for the Classic remake page
 js/config.js               Supabase URL + anon key (single source of truth)
 js/i18n.js                 EN/DE translation tables + setLanguage()
 js/app.js                  Navigation, i18n wiring, signature animations
-js/pong.js                 Paddle Force game (modes, territory, power-ups, AI, audio, fx)
-js/games.js                Games entry point (loads pong.js) + Memory game
+js/paddleforce.js          Classic remake game logic (loaded by js/game-boot.js)
+js/games.js                Games entry point + Memory game
 js/comments.js             Supabase comments
 .github/workflows/deploy.yml   Auto-deploy to GitHub Pages on push to main
 .nojekyll                  Tell Pages not to run Jekyll

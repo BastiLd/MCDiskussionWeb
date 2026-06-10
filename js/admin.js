@@ -32,6 +32,7 @@ export function initAdmin() {
   const logoutBtn = section.querySelector('[data-logout]');
   const refreshBtn = section.querySelector('[data-admin-refresh]');
   const statsEl = section.querySelector('[data-admin-stats]');
+  const gamesEl = section.querySelector('[data-admin-games]');
   const commentsEl = section.querySelector('[data-admin-comments]');
   const navItem = document.querySelector('[data-admin-nav]');
   const modsEl = section.querySelector('[data-admin-mods]');
@@ -136,6 +137,7 @@ export function initAdmin() {
     if (evErr || cmErr) {
       statsEl.innerHTML = '';
       statsEl.appendChild(makeMuted(t('adminLoadError'), 'error'));
+      if (gamesEl) gamesEl.innerHTML = '';
       return;
     }
 
@@ -169,6 +171,32 @@ export function initAdmin() {
       breakdown(t('breakdownSections'), groupCount(ofType('section_view'), 'label'))
     );
     statsEl.appendChild(breakdowns);
+
+    renderGames(evs);
+  }
+
+  // Games block: opens of the two Paddle Force pages + launch clicks from the
+  // homepage cards (events come from game.html / game-classic.html / [data-track]).
+  function renderGames(evs) {
+    if (!gamesEl) return;
+    const ofType = (tp) => evs.filter((e) => e.type === tp);
+    const opens = ofType('game_open');
+    const launches = ofType('game_launch');
+    const starts = ofType('game_start');
+
+    gamesEl.innerHTML = '';
+    const cards = document.createElement('div');
+    cards.className = 'stat-grid';
+    cards.append(statCard(opens.length, t('statGameOpens')), statCard(starts.length, t('statGameStarts')));
+    gamesEl.appendChild(cards);
+
+    const breakdowns = document.createElement('div');
+    breakdowns.className = 'breakdown-grid';
+    breakdowns.append(
+      breakdown(t('breakdownGameOpens'), groupCount(opens, 'label')),
+      breakdown(t('breakdownGameLaunches'), groupCount(launches, 'label'))
+    );
+    gamesEl.appendChild(breakdowns);
   }
 
   async function renderComments() {
