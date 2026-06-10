@@ -285,7 +285,7 @@ export function initAdmin() {
 // ----------------------------------------------------------------- helpers
 function statCard(value, label) {
   const card = document.createElement('div');
-  card.className = 'stat-card';
+  card.className = 'stat-card beam';
   const v = document.createElement('span');
   v.className = 'stat-value';
   v.textContent = String(value);

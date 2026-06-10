@@ -8,6 +8,7 @@ import { initGames } from './games.js';
 import { initComments } from './comments.js';
 import { initAnalytics } from './analytics.js';
 import { initAdmin } from './admin.js';
+import { initEffects } from './effects.js';
 
 const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)');
 const isTouch =
@@ -283,6 +284,7 @@ function boot() {
   safe('reveal', initReveal);
   safe('tilt', initTilt);
   safe('scramble', initScramble);
+  safe('effects', initEffects);
 }
 
 if (document.readyState === 'loading') {

@@ -66,6 +66,8 @@
       <!-- ===================== HOME ===================== -->
       <section id="home" class="section" tabindex="-1" aria-labelledby="hero-title">
         <div class="hero">
+          <!-- Aurora: slow drifting colour mist behind the title -->
+          <div class="aurora" aria-hidden="true"><i></i><i></i><i></i></div>
           <h1 id="hero-title" class="hero-title sig-heading" data-i18n="heroTitle">BastiLd Mod Hub</h1>
           <p id="hero-subtitle" class="hero-subtitle" data-i18n="heroSubtitle">
             Explore mods and play mini-games.
@@ -93,25 +95,25 @@
           </p>
         </header>
 
-        <!-- Features -->
+        <!-- Features (accordion: title + rotating chevron; hover previews, click pins) -->
         <h3 class="block-title" data-i18n="featuresTitle">Features</h3>
-        <ul class="feature-list reveal" role="list">
-          <li data-i18n="feat1">Four save slots per player: Auto (short), Auto (long), Manual and Death.</li>
-          <li data-i18n="feat2">Configurable auto-save intervals for the Auto slots.</li>
-          <li data-i18n="feat3">Auto-save just before death into the dedicated Death slot.</li>
-          <li data-i18n="feat4">Undo restoration (/restoreinv undo) — the current inventory is saved first.</li>
-          <li data-i18n="feat5">Inventory preview GUI (9×6) showing armor, main inventory, hotbar and off-hand.</li>
-          <li data-i18n="feat6">Detailed tooltips: relative time, item count and best tool.</li>
-          <li data-i18n="feat7">Pin protection: right-click to prevent overwriting saves.</li>
-          <li data-i18n="feat8">Configurable number of saves per slot (1–9).</li>
-          <li data-i18n="feat9">Restore sound toggle and per-player settings.</li>
-          <li data-i18n="feat10">Multilingual (English / German).</li>
-          <li data-i18n="feat11">Asynchronous saving off the server thread.</li>
-          <li data-i18n="feat12">Saves stored in restoreinv/&lt;uuid&gt; and persist across mod updates.</li>
-          <li data-i18n="feat13">Supported versions: 1.21–1.21.1, 1.21.2–1.21.4, 1.21.9–1.21.11.</li>
-          <li data-i18n="feat14">Commands: /restoreinv 1|2|3|4, save, undo, saves, config, version.</li>
-          <li data-i18n="feat15">Permissions: restoreinv.admin and restoreinv.restore (OP fallback).</li>
-          <li data-i18n="feat16">MIT license; saves survive updates and are backward-compatible.</li>
+        <ul class="feature-acc reveal" data-accordion role="list">
+          <li class="acc-item"><button type="button" class="acc-head" aria-expanded="false"><span class="acc-mark" aria-hidden="true">▹</span><span class="acc-title" data-i18n="feat1_t">Four save slots per player</span><span class="chev" aria-hidden="true">▾</span></button><div class="acc-body"><div class="acc-inner"><p data-i18n="feat1_d">Auto (short), Auto (long), Manual and Death.</p></div></div></li>
+          <li class="acc-item"><button type="button" class="acc-head" aria-expanded="false"><span class="acc-mark" aria-hidden="true">▹</span><span class="acc-title" data-i18n="feat2_t">Configurable auto-save intervals</span><span class="chev" aria-hidden="true">▾</span></button><div class="acc-body"><div class="acc-inner"><p data-i18n="feat2_d">Choose how often the Auto slots save.</p></div></div></li>
+          <li class="acc-item"><button type="button" class="acc-head" aria-expanded="false"><span class="acc-mark" aria-hidden="true">▹</span><span class="acc-title" data-i18n="feat3_t">Auto-save just before death</span><span class="chev" aria-hidden="true">▾</span></button><div class="acc-body"><div class="acc-inner"><p data-i18n="feat3_d">Saved into the dedicated Death slot.</p></div></div></li>
+          <li class="acc-item"><button type="button" class="acc-head" aria-expanded="false"><span class="acc-mark" aria-hidden="true">▹</span><span class="acc-title" data-i18n="feat4_t">Undo restoration</span><span class="chev" aria-hidden="true">▾</span></button><div class="acc-body"><div class="acc-inner"><p data-i18n="feat4_d">The current inventory is saved first.</p></div></div></li>
+          <li class="acc-item"><button type="button" class="acc-head" aria-expanded="false"><span class="acc-mark" aria-hidden="true">▹</span><span class="acc-title" data-i18n="feat5_t">Inventory preview GUI</span><span class="chev" aria-hidden="true">▾</span></button><div class="acc-body"><div class="acc-inner"><p data-i18n="feat5_d">9×6 view with armor, inventory, hotbar, off-hand.</p></div></div></li>
+          <li class="acc-item"><button type="button" class="acc-head" aria-expanded="false"><span class="acc-mark" aria-hidden="true">▹</span><span class="acc-title" data-i18n="feat6_t">Detailed tooltips</span><span class="chev" aria-hidden="true">▾</span></button><div class="acc-body"><div class="acc-inner"><p data-i18n="feat6_d">Relative time, item count and best tool.</p></div></div></li>
+          <li class="acc-item"><button type="button" class="acc-head" aria-expanded="false"><span class="acc-mark" aria-hidden="true">▹</span><span class="acc-title" data-i18n="feat7_t">Pin protection</span><span class="chev" aria-hidden="true">▾</span></button><div class="acc-body"><div class="acc-inner"><p data-i18n="feat7_d">Right-click to prevent overwriting saves.</p></div></div></li>
+          <li class="acc-item"><button type="button" class="acc-head" aria-expanded="false"><span class="acc-mark" aria-hidden="true">▹</span><span class="acc-title" data-i18n="feat8_t">1–9 saves per slot</span><span class="chev" aria-hidden="true">▾</span></button><div class="acc-body"><div class="acc-inner"><p data-i18n="feat8_d">Configure how many saves each slot keeps.</p></div></div></li>
+          <li class="acc-item"><button type="button" class="acc-head" aria-expanded="false"><span class="acc-mark" aria-hidden="true">▹</span><span class="acc-title" data-i18n="feat9_t">Sound &amp; per-player settings</span><span class="chev" aria-hidden="true">▾</span></button><div class="acc-body"><div class="acc-inner"><p data-i18n="feat9_d">Toggle the restore sound per player.</p></div></div></li>
+          <li class="acc-item"><button type="button" class="acc-head" aria-expanded="false"><span class="acc-mark" aria-hidden="true">▹</span><span class="acc-title" data-i18n="feat10_t">Multilingual</span><span class="chev" aria-hidden="true">▾</span></button><div class="acc-body"><div class="acc-inner"><p data-i18n="feat10_d">English and German included.</p></div></div></li>
+          <li class="acc-item"><button type="button" class="acc-head" aria-expanded="false"><span class="acc-mark" aria-hidden="true">▹</span><span class="acc-title" data-i18n="feat11_t">Asynchronous saving</span><span class="chev" aria-hidden="true">▾</span></button><div class="acc-body"><div class="acc-inner"><p data-i18n="feat11_d">Runs off the server thread — no lag spikes.</p></div></div></li>
+          <li class="acc-item"><button type="button" class="acc-head" aria-expanded="false"><span class="acc-mark" aria-hidden="true">▹</span><span class="acc-title" data-i18n="feat12_t">Saves survive updates</span><span class="chev" aria-hidden="true">▾</span></button><div class="acc-body"><div class="acc-inner"><p data-i18n="feat12_d">Stored in restoreinv/&lt;uuid&gt;.</p></div></div></li>
+          <li class="acc-item"><button type="button" class="acc-head" aria-expanded="false"><span class="acc-mark" aria-hidden="true">▹</span><span class="acc-title" data-i18n="feat13_t">Supported Minecraft versions</span><span class="chev" aria-hidden="true">▾</span></button><div class="acc-body"><div class="acc-inner"><p data-i18n="feat13_d">1.21–1.21.1, 1.21.2–1.21.4, 1.21.9–1.21.11.</p></div></div></li>
+          <li class="acc-item"><button type="button" class="acc-head" aria-expanded="false"><span class="acc-mark" aria-hidden="true">▹</span><span class="acc-title" data-i18n="feat14_t">Full command set</span><span class="chev" aria-hidden="true">▾</span></button><div class="acc-body"><div class="acc-inner"><p data-i18n="feat14_d">/restoreinv 1|2|3|4, save, undo, saves, config, version.</p></div></div></li>
+          <li class="acc-item"><button type="button" class="acc-head" aria-expanded="false"><span class="acc-mark" aria-hidden="true">▹</span><span class="acc-title" data-i18n="feat15_t">Permissions</span><span class="chev" aria-hidden="true">▾</span></button><div class="acc-body"><div class="acc-inner"><p data-i18n="feat15_d">restoreinv.admin and restoreinv.restore (OP fallback).</p></div></div></li>
+          <li class="acc-item"><button type="button" class="acc-head" aria-expanded="false"><span class="acc-mark" aria-hidden="true">▹</span><span class="acc-title" data-i18n="feat16_t">MIT license</span><span class="chev" aria-hidden="true">▾</span></button><div class="acc-body"><div class="acc-inner"><p data-i18n="feat16_d">Saves survive updates, backward-compatible.</p></div></div></li>
         </ul>
 
         <!-- Downloads -->
@@ -121,7 +123,7 @@
           <span data-i18n="downloadNote">Saves survive updates.</span>
         </p>
         <div class="download-grid">
-          <article class="card tilt reveal">
+          <article class="card tilt reveal beam">
             <div class="card-row">
               <span class="card-label" data-i18n="thVersion">Version Range</span>
               <span class="card-value">1.21 – 1.21.1</span>
@@ -154,7 +156,7 @@
             </div>
           </article>
 
-          <article class="card tilt reveal">
+          <article class="card tilt reveal beam">
             <div class="card-row">
               <span class="card-label" data-i18n="thVersion">Version Range</span>
               <span class="card-value">1.21.2 – 1.21.4</span>
@@ -187,7 +189,7 @@
             </div>
           </article>
 
-          <article class="card tilt reveal">
+          <article class="card tilt reveal beam">
             <div class="card-row">
               <span class="card-label" data-i18n="thVersion">Version Range</span>
               <span class="card-value">1.21.9 – 1.21.11</span>
@@ -326,7 +328,7 @@
         </header>
 
         <h3 class="block-title" data-i18n="pongTitle">Paddle Force</h3>
-        <a class="game-launch tilt" href="game.html">
+        <a class="game-launch tilt beam" href="game.html">
           <div class="game-launch-art" aria-hidden="true">
             <span class="gl-p1"></span>
             <span class="gl-ball"></span>
@@ -363,7 +365,7 @@
         </header>
 
         <div class="mods-grid">
-          <article class="card tilt reveal">
+          <article class="card tilt reveal beam">
             <h3>RestoreInventory</h3>
             <p data-i18n="modsRestoreCard">Inventory backups &amp; restoration for Fabric.</p>
             <a class="btn btn-primary" href="#restoreinventory" data-nav data-i18n="modsView">View</a>
