@@ -277,7 +277,10 @@ export function initAdmin() {
     const actions = document.createElement('div');
     actions.className = 'admin-actions';
 
-    // Per-mod card layout (where downloads/buttons sit on the public card)
+    // Quick layout presets (where downloads/buttons sit on the public card).
+    // Custom layouts from the full editor show up as "custom" here.
+    const rawLayout = mod.data && mod.data.layout;
+    const isCustom = !!rawLayout && typeof rawLayout === 'object';
     const layoutSel = document.createElement('select');
     layoutSel.className = 'mod-layout-select';
     layoutSel.title = t('modLayoutTitle');
@@ -288,8 +291,17 @@ export function initAdmin() {
       opt.textContent = t('modLayout_' + key);
       layoutSel.appendChild(opt);
     });
-    layoutSel.value = (mod.data && mod.data.layout) || 'standard';
+    if (isCustom) {
+      const opt = document.createElement('option');
+      opt.value = '__custom__';
+      opt.textContent = t('modLayout_custom');
+      layoutSel.appendChild(opt);
+      layoutSel.value = '__custom__';
+    } else {
+      layoutSel.value = typeof rawLayout === 'string' && MOD_LAYOUTS[rawLayout] ? rawLayout : 'standard';
+    }
     layoutSel.addEventListener('change', async () => {
+      if (layoutSel.value === '__custom__') return;
       const { error } = await sb
         .from('mods')
         .update({ data: { ...(mod.data || {}), layout: layoutSel.value } })
@@ -298,6 +310,13 @@ export function initAdmin() {
       renderMods();
     });
     actions.appendChild(layoutSel);
+
+    // Full editor (texts, links, layout grid/free, …)
+    const editLink = document.createElement('a');
+    editLink.className = 'btn btn-sm btn-primary';
+    editLink.href = 'mod-editor.html#' + encodeURIComponent(mod.slug);
+    editLink.textContent = t('editorEdit');
+    actions.appendChild(editLink);
 
     actions.appendChild(btn(t('modRefetch'), () => refetchMod(mod)));
     actions.appendChild(btn(mod.visible ? t('adminHide') : t('adminShow'), async () => {

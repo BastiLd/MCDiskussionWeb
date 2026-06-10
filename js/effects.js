@@ -119,11 +119,12 @@ function initCanvasFx() {
         const near = Math.max(0, 1 - Math.hypot(d.x - mouse.x, d.y - mouse.y) / RADIUS);
         if (near > 0.02) {
           bctx.fillStyle = ac;
-          bctx.globalAlpha = 0.12 + near * 0.5;
+          bctx.globalAlpha = 0.18 + near * 0.55;
           bctx.fillRect(d.x - 1, d.y - 1, 2 + near * 1.5, 2 + near * 1.5);
         } else {
+          // idle dots stay clearly visible everywhere the content leaves room
           bctx.fillStyle = '#ffffff';
-          bctx.globalAlpha = 0.05;
+          bctx.globalAlpha = 0.14;
           bctx.fillRect(d.x - 1, d.y - 1, 2, 2);
         }
       }

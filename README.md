@@ -28,6 +28,7 @@ index.html                 Main page: nav + all sections
 game.html                  Paddle Force (Original) — full-screen iframe wrapper
 paddleforce/               The original game by Flobotron (HTML, JS, art, music, sounds)
 game-classic.html          Paddle Force Classic — BastiLd's remake (standalone page)
+mod-editor.html            Admin-only mod card editor (content + grid/free layout)
 css/style.css              Global styles (theme, layout, animations)
 css/game.css               Styles for the Classic remake page
 js/config.js               Supabase URL + anon key (single source of truth)

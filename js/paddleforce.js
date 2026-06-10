@@ -342,9 +342,9 @@ export function initPaddleForce() {
   const PERSONALITY = {
     // Easy: sluggish & clumsy but adorable. Medium: solid with mistakes.
     // Hard: aggressive, fast, spins for boosts — yet still misses sometimes.
-    easy:   { react: 0.32, err: 150, speed: 0.55, accel: 6,  look: 0.22, blunder: 0.20, aggro: 0.06, boost: 0.02, chase: 0.0 },
-    medium: { react: 0.17, err: 80,  speed: 0.80, accel: 9,  look: 0.50, blunder: 0.08, aggro: 0.45, boost: 0.15, chase: 0.5 },
-    hard:   { react: 0.09, err: 36,  speed: 0.98, accel: 13, look: 0.80, blunder: 0.03, aggro: 0.80, boost: 0.45, chase: 0.85 },
+    easy:   { react: 0.32, err: 150, speed: 0.55, accel: 6,  look: 0.25, blunder: 0.20, aggro: 0.06, boost: 0.02, chase: 0.0 },
+    medium: { react: 0.13, err: 58,  speed: 0.86, accel: 11, look: 0.70, blunder: 0.05, aggro: 0.50, boost: 0.20, chase: 0.55 },
+    hard:   { react: 0.07, err: 24,  speed: 1.00, accel: 15, look: 0.96, blunder: 0.015, aggro: 0.85, boost: 0.55, chase: 0.9 },
   };
   function nearestChaseable(p) {
     // Pucks/mines inside our own half that we could herd toward the enemy goal.
@@ -367,11 +367,14 @@ export function initPaddleForce() {
       p.reactT = c.react * (0.6 + Math.random() * 0.9);
       p.chaseTarget = null;
       if (coming) {
-        // Rough lookahead (one wall bounce) + error + occasional blunders.
+        // Lookahead with proper wall folding (any number of bounces) + error
+        // + occasional blunders. `look` blends prediction vs. just following.
         const tHit = distX / (Math.abs(ball.vx) || 1);
-        let predicted = ball.y + ball.vy * tHit * c.look;
-        if (predicted < 0) predicted = -predicted;
-        if (predicted > H) predicted = 2 * H - predicted;
+        let predicted = ball.y + ball.vy * tHit;
+        let fold = predicted % (2 * H);
+        if (fold < 0) fold += 2 * H;
+        predicted = fold > H ? 2 * H - fold : fold;
+        predicted = ball.y + (predicted - ball.y) * c.look;
         const blunder = Math.random() < c.blunder ? (Math.random() - 0.5) * 340 : 0;
         p.targetY = predicted + (Math.random() - Math.random()) * c.err + blunder;
         // Step toward the centre line to attack (aggression by difficulty).
@@ -518,16 +521,34 @@ export function initPaddleForce() {
       h.velX = h.owner.velX; h.velY = h.owner.velY; h.angVel = h.owner.angVel;
     });
 
-    // --- Ball physics in SUBSTEPS: the ball never travels more than ~80% of
-    // its own radius per step, so even at max speed it cannot tunnel through
-    // a paddle between two frames.
+    // --- Ball physics in SUBSTEPS. The step count covers the RELATIVE motion:
+    // ball travel AND how far each paddle moves/sweeps this frame (a fast dash
+    // or spin would otherwise teleport the paddle across the ball between two
+    // frames). Paddle pose is interpolated per substep, so contacts that
+    // happen mid-frame are detected — no more tunnelling through paddles.
     const slow = (hasEffect(p1, 'sticky') || hasEffect(p2, 'sticky')) ? 0.6 : 1;
     if (ball.spin) { ball.vy += ball.spin * dt * 0.5; ball.spin *= 0.985; }
     const travel = Math.hypot(ball.vx, ball.vy) * dt * slow;
-    const steps = Math.max(1, Math.min(10, Math.ceil(travel / (ball.r * 0.8))));
+    const sweepOf = (p) => {
+      const tip = paddleH(p) / 2 + CFG.paddleW / 2;
+      return Math.hypot(p.x - p.prevX, p.y - p.prevY) + Math.abs(p.angle - p.prevA) * tip;
+    };
+    const motion = Math.max(travel, sweepOf(p1), sweepOf(p2));
+    const steps = Math.max(1, Math.min(16, Math.ceil(motion / (ball.r * 0.7))));
     const sdt = (dt * slow) / steps;
+    const finals = [p1, p2].map((p) => ({ x: p.x, y: p.y, a: p.angle }));
+    const syncHelpers = () => helpers.forEach((h) => {
+      h.x = h.owner.x; h.y = h.owner.y + h.offset; h.angle = h.owner.angle;
+    });
     let scoredBy = null;
     for (let s = 0; s < steps && !scoredBy; s++) {
+      const k = (s + 1) / steps;
+      [p1, p2].forEach((p, i) => {
+        p.x = p.prevX + (finals[i].x - p.prevX) * k;
+        p.y = p.prevY + (finals[i].y - p.prevY) * k;
+        p.angle = p.prevA + (finals[i].a - p.prevA) * k;
+      });
+      syncHelpers();
       ball.x += ball.vx * sdt; ball.y += ball.vy * sdt;
       if (ball.y < ball.r) { ball.y = ball.r; ball.vy = Math.abs(ball.vy); sfx.wall(); }
       else if (ball.y > H - ball.r) { ball.y = H - ball.r; ball.vy = -Math.abs(ball.vy); sfx.wall(); }
@@ -535,6 +556,8 @@ export function initPaddleForce() {
       if (ball.x < -ball.r) scoredBy = p2;
       else if (ball.x > W + ball.r) scoredBy = p1;
     }
+    [p1, p2].forEach((p, i) => { p.x = finals[i].x; p.y = finals[i].y; p.angle = finals[i].a; });
+    syncHelpers();
     trail.push({ x: ball.x, y: ball.y }); if (trail.length > 16) trail.shift();
 
     if (settings.powerups.size) {
