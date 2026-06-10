@@ -344,6 +344,48 @@ html, body {
 .pf-dpad .d-right { grid-column: 3; grid-row: 2; }
 .pf-dpad button:active, .pf-rot button:active { background: var(--pf-p2); }
 
+/* ===================== Rotate hint (small portrait screens) ===================== */
+.pf-rotate-hint {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: none;
+  place-items: center;
+  text-align: center;
+  background: rgba(5, 5, 16, 0.92);
+  font-weight: 900;
+  font-size: 1.3rem;
+}
+.pf-rotate-emoji { font-size: 3rem; display: block; margin-bottom: 8px; }
+.pf-rotate-hint p { margin: 0; }
+.pf-rotate-hint small { font-weight: 600; color: #b9b0c8; }
+@media (orientation: portrait) and (max-width: 820px) {
+  .pf-rotate-hint { display: grid; }
+  .pf-rotate-hint > * { display: block; }
+}
+
+/* ===================== Small screens ===================== */
+@media (max-width: 700px), (max-height: 560px) {
+  .pf-mascot { display: none; }
+  .pf-moon { width: 300px; height: 300px; right: -140px; bottom: -180px; opacity: 0.6; }
+  .pf-menu { padding: 10px; }
+  .pf-title { font-size: clamp(1.8rem, 8vw, 2.6rem); }
+  .pf-subtitle { margin-bottom: 10px; font-size: 0.95rem; }
+  .pf-seg, .pf-powerups, .pf-toggles, .pf-players { gap: 6px; margin: 8px 0; }
+  .pf-segbtn, .pf-toggle, .pf-pbtn { padding: 10px 12px; font-size: 0.82rem; }
+  .pf-pu { width: 60px; }
+  .pf-pu-ico { width: 46px; height: 46px; font-size: 1.4rem; border-radius: 10px; }
+  .pf-pu-lbl { font-size: 0.66rem; }
+  .pf-start-btn { padding: 14px 36px; }
+  .pf-controls-hint { display: none; }
+  .pf-scoreboard { top: 8px; padding: 3px 12px; }
+  .pf-score { font-size: 1.3rem; padding: 1px 9px; }
+}
+/* Touch pads: keep clear of curved screen edges / home indicator */
+.pf-touch { bottom: calc(10px + env(safe-area-inset-bottom, 0px)); }
+.pf-pad[data-side="p1"] { margin-left: env(safe-area-inset-left, 0px); }
+.pf-pad[data-side="p2"] { margin-right: env(safe-area-inset-right, 0px); }
+
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }
 }

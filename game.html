@@ -13,6 +13,12 @@
   <body>
     <a class="pf-back" href="index.html#games" aria-label="Back to the site">← Back</a>
 
+    <!-- Shown on small portrait screens: the game wants landscape -->
+    <div class="pf-rotate-hint" aria-hidden="true">
+      <span class="pf-rotate-emoji">🔄</span>
+      <p>Bitte Gerät drehen<br /><small>Please rotate your device</small></p>
+    </div>
+
     <div class="pf-stage" data-pf-stage>
       <canvas data-pf-canvas width="1280" height="720" role="img" aria-label="Paddle Force game board"></canvas>
 

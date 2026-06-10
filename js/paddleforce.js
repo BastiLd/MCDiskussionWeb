@@ -18,8 +18,9 @@ const CFG = {
   paddleW: 20,
   paddleH: 130,
   moveSpeed: 560,
-  rotSpeed: 2.8,
-  maxAngle: 1.0,
+  rotSpeed: 3.0, // rad/s while a rotate key is HELD (continuous 360°)
+  rotHoldMs: 160, // press shorter than this = clean 90° snap instead
+  rotEase: 14, // how quickly the visible angle eases to its target
   ballR: 13,
   ballSpeed: 440,
   ballSpeedMax: 980,
@@ -158,8 +159,9 @@ export function initPaddleForce() {
 
   function newPaddle(side, type) {
     const homeX = side < 0 ? CFG.wallInset : W - CFG.wallInset;
-    return { side, x: homeX, homeX, y: H / 2, vy: 0, angle: 0, score: 0,
-      isAI: type === 'cpu', effects: {}, reactT: 0, targetY: H / 2, mood: 0 };
+    return { side, x: homeX, homeX, y: H / 2, vx: 0, vy: 0, angle: 0, targetAngle: 0, score: 0,
+      isAI: type === 'cpu', effects: {}, reactT: 0, targetY: H / 2, targetX: homeX,
+      chaseTarget: null, wantBoost: false, boosting: 0, boostDir: 1 };
   }
   function resetBall(dir) {
     const a = (Math.random() - 0.5) * 0.5;
@@ -186,7 +188,10 @@ export function initPaddleForce() {
     divX = divTarget = W / 2;
     pucks = []; mines = []; helpers = []; particles = []; popups = [];
     p1.effects = {}; p2.effects = {};
-    p1.x = p1.homeX; p2.x = p2.homeX; p1.y = p2.y = H / 2; p1.vy = p2.vy = 0; p1.angle = p2.angle = 0;
+    [p1, p2].forEach((p) => {
+      p.x = p.homeX; p.targetX = p.homeX; p.y = H / 2; p.vx = p.vy = 0;
+      p.angle = p.targetAngle = 0; p.chaseTarget = null; p.boosting = 0;
+    });
     puckTimer = CFG.puckEvery; resetBall(Math.random() < 0.5 ? -1 : 1);
     phase = 'countdown'; countdownT = CFG.countdown;
     updateScore();
@@ -227,19 +232,52 @@ export function initPaddleForce() {
 
   // ---- input ----
   const norm = (k) => k.toLowerCase();
+  const HALF_PI = Math.PI / 2;
+  // Rotation keys: tap = 90° snap, hold (> rotHoldMs) = continuous 360° spin.
+  const ROTKEYS = {
+    c: { side: -1, dir: -1 }, v: { side: -1, dir: 1 },
+    ',': { side: 1, dir: -1 }, '.': { side: 1, dir: 1 },
+  };
+  const rotState = {};
+  function rotKeyDown(k) {
+    if (!rotState[k]) rotState[k] = { downAt: performance.now(), held: false };
+  }
+  function rotKeyUp(k) {
+    const st = rotState[k];
+    delete rotState[k];
+    if (!st || st.held) return; // a hold just stops; only taps snap
+    const map = ROTKEYS[k];
+    const p = map.side < 0 ? p1 : p2;
+    if (!p || p.isAI) return;
+    // Snap the target to the next clean 90° step in the tapped direction.
+    p.targetAngle = Math.round(p.targetAngle / HALF_PI) * HALF_PI + map.dir * HALF_PI;
+  }
   function onKeyDown(e) {
     const k = norm(e.key);
     if (['arrowup', 'arrowdown', 'arrowleft', 'arrowright', ' '].includes(k)) e.preventDefault();
     if (k === ' ' || k === 'p') { togglePause(); return; }
     if (k === 'escape') { goHome(); return; }
     if (k === 'm') { ensureAudio(); settings.sound = !settings.sound; return; }
+    if (ROTKEYS[k] && !keys.has(k)) rotKeyDown(k);
     keys.add(k);
   }
-  function onKeyUp(e) { keys.delete(norm(e.key)); }
+  function onKeyUp(e) {
+    const k = norm(e.key);
+    if (ROTKEYS[k]) rotKeyUp(k);
+    keys.delete(k);
+  }
   function bindTouch(btn) {
     const key = btn.dataset.key.toLowerCase();
-    const d = (e) => { e.preventDefault(); ensureAudio(); keys.add(key); };
-    const u = (e) => { e.preventDefault(); keys.delete(key); };
+    const d = (e) => {
+      e.preventDefault(); ensureAudio();
+      if (ROTKEYS[key] && !keys.has(key)) rotKeyDown(key);
+      keys.add(key);
+    };
+    const u = (e) => {
+      e.preventDefault();
+      if (ROTKEYS[key]) rotKeyUp(key);
+      keys.delete(key);
+    };
     btn.addEventListener('touchstart', d, { passive: false });
     btn.addEventListener('touchend', u, { passive: false });
     btn.addEventListener('touchcancel', u, { passive: false });
@@ -260,66 +298,131 @@ export function initPaddleForce() {
     const ghost = hasEffect(p, 'ghost');
     if (p.side < 0) p.x = Math.max(40, Math.min(ghost ? W - 50 : Math.min(divX - 34, W * 0.5), p.x));
     else p.x = Math.max(ghost ? 50 : Math.max(divX + 34, W * 0.5), Math.min(W - 40, p.x));
-    p.angle = Math.max(-CFG.maxAngle, Math.min(CFG.maxAngle, p.angle));
+    // Full 360° allowed. Wrap both angles by the same full turns so the
+    // numbers never grow unbounded (rotation is visually periodic).
+    const turns = Math.trunc(p.targetAngle / (Math.PI * 2)) * (Math.PI * 2);
+    if (turns) { p.targetAngle -= turns; p.angle -= turns; }
+  }
+
+  // Ease the visible angle toward its target (smooth snaps AND smooth holds).
+  function easeAngle(p, dt) {
+    p.angle += (p.targetAngle - p.angle) * Math.min(1, CFG.rotEase * dt);
   }
 
   function controlHuman(p, dt) {
-    const m = p.keymap; let mx = 0, my = 0, rot = 0;
+    const m = p.keymap; let mx = 0, my = 0;
     if (keys.has(m.up)) my -= 1;
     if (keys.has(m.down)) my += 1;
     if (keys.has(m.left)) mx -= 1;
     if (keys.has(m.right)) mx += 1;
-    if (keys.has(m.rotL)) rot -= 1;
-    if (keys.has(m.rotR)) rot += 1;
+    // Held rotation keys spin continuously once past the tap threshold.
+    for (const k of [m.rotL, m.rotR]) {
+      const st = rotState[k];
+      if (st && keys.has(k)) {
+        if (!st.held && performance.now() - st.downAt > CFG.rotHoldMs) st.held = true;
+        if (st.held) p.targetAngle += (k === m.rotR ? 1 : -1) * CFG.rotSpeed * dt;
+      }
+    }
     const g = gp(p.gp);
-    if (g) { mx += g.mx; my += g.my; if (g.rotL) rot -= 1; if (g.rotR) rot += 1; }
+    if (g) {
+      mx += g.mx; my += g.my;
+      if (g.rotL) p.targetAngle -= CFG.rotSpeed * dt;
+      if (g.rotR) p.targetAngle += CFG.rotSpeed * dt;
+    }
     p.x += mx * CFG.moveSpeed * dt;
     p.y += my * CFG.moveSpeed * dt;
-    p.angle += rot * CFG.rotSpeed * dt;
+    easeAngle(p, dt);
     clampPaddle(p);
   }
 
-  // Realistic, beatable AI: reacts with delay + error, accelerates (so it can
-  // overshoot / arrive late), drifts when the ball is leaving, and only does a
-  // light 1-bounce lookahead — it does NOT teleport to a perfect spot.
+  // "Human-like" CPU: drives the SAME inputs a player has (x/y movement,
+  // rotation toward a target angle, deliberate boost spins) with reaction lag,
+  // aim error and occasional blunders — nothing teleports, everything is
+  // reachable for a human opponent.
+  const PERSONALITY = {
+    // Easy: sluggish & clumsy but adorable. Medium: solid with mistakes.
+    // Hard: aggressive, fast, spins for boosts — yet still misses sometimes.
+    easy:   { react: 0.32, err: 150, speed: 0.55, accel: 6,  look: 0.22, blunder: 0.20, aggro: 0.06, boost: 0.02, chase: 0.0 },
+    medium: { react: 0.17, err: 80,  speed: 0.80, accel: 9,  look: 0.50, blunder: 0.08, aggro: 0.45, boost: 0.15, chase: 0.5 },
+    hard:   { react: 0.09, err: 36,  speed: 0.98, accel: 13, look: 0.80, blunder: 0.03, aggro: 0.80, boost: 0.45, chase: 0.85 },
+  };
+  function nearestChaseable(p) {
+    // Pucks/mines inside our own half that we could herd toward the enemy goal.
+    const inOwnHalf = (x) => (p.side < 0 ? x < divX - 40 : x > divX + 40);
+    let best = null, bd = Infinity;
+    for (const e of pucks) if (inOwnHalf(e.x)) { const d = Math.hypot(e.x - p.x, e.y - p.y); if (d < bd) { bd = d; best = e; } }
+    for (const e of mines) if (inOwnHalf(e.x)) { const d = Math.hypot(e.x - p.x, e.y - p.y); if (d < bd) { bd = d; best = e; } }
+    return best;
+  }
   function controlAI(p, dt) {
-    const D = settings.difficulty;
-    const c = D === 'easy'
-      ? { react: 0.30, err: 130, speed: 0.62, accel: 6, look: 0.25, rot: 0.35, miss: 0.16 }
-      : D === 'hard'
-      ? { react: 0.10, err: 42, speed: 0.95, accel: 12, look: 0.7, rot: 0.8, miss: 0.04 }
-      : { react: 0.18, err: 82, speed: 0.8, accel: 9, look: 0.45, rot: 0.55, miss: 0.09 };
-
+    const c = PERSONALITY[attract ? 'medium' : settings.difficulty] || PERSONALITY.medium;
     const coming = (p.side < 0 && ball.vx < 0) || (p.side > 0 && ball.vx > 0);
+    const distX = Math.abs(ball.x - p.x);
+
+    // Drop a chase target that no longer exists (scored / exploded).
+    if (p.chaseTarget && !pucks.includes(p.chaseTarget) && !mines.includes(p.chaseTarget)) p.chaseTarget = null;
+
     p.reactT -= dt;
     if (p.reactT <= 0) {
       p.reactT = c.react * (0.6 + Math.random() * 0.9);
+      p.chaseTarget = null;
       if (coming) {
-        // light lookahead toward where the ball is heading (one wall bounce max)
-        const dx = Math.abs(ball.x - p.x);
-        const tHit = dx / (Math.abs(ball.vx) || 1);
+        // Rough lookahead (one wall bounce) + error + occasional blunders.
+        const tHit = distX / (Math.abs(ball.vx) || 1);
         let predicted = ball.y + ball.vy * tHit * c.look;
-        // reflect a single wall bounce so it isn't clueless, but keep it rough
         if (predicted < 0) predicted = -predicted;
         if (predicted > H) predicted = 2 * H - predicted;
-        const blunder = Math.random() < c.miss ? (Math.random() - 0.5) * 320 : 0;
+        const blunder = Math.random() < c.blunder ? (Math.random() - 0.5) * 340 : 0;
         p.targetY = predicted + (Math.random() - Math.random()) * c.err + blunder;
+        // Step toward the centre line to attack (aggression by difficulty).
+        const frontX = p.side < 0 ? divX - 70 : divX + 70;
+        p.targetX = p.homeX + (frontX - p.homeX) * c.aggro * (0.4 + Math.random() * 0.6);
+        p.wantBoost = Math.random() < c.boost;
       } else {
-        // relax toward centre, imperfectly
-        p.targetY = H / 2 + (Math.random() - 0.5) * 160;
+        // Ball going away: maybe herd a power-up / mine, else recover home.
+        const t = Math.random() < c.chase ? nearestChaseable(p) : null;
+        if (t) p.chaseTarget = t;
+        else {
+          p.targetY = H / 2 + (Math.random() - 0.5) * 180;
+          p.targetX = p.homeX + (Math.random() - 0.5) * 40;
+        }
+        p.wantBoost = false;
       }
     }
-    // accelerate toward target (smoothing => natural over/undershoot)
-    const desiredV = Math.max(-1, Math.min(1, (p.targetY - p.y) / 60)) * CFG.moveSpeed * c.speed;
-    p.vy += (desiredV - p.vy) * Math.min(1, c.accel * dt);
-    p.y += p.vy * dt;
-    // occasional paddle angling, also imperfect
-    if (coming && Math.abs(ball.x - p.x) < 260 && Math.random() < 0.5) {
-      const want = (ball.y < p.y ? -1 : 1) * (p.side < 0 ? 1 : -1) * 0.6;
-      p.angle += Math.sign(want - p.angle) * CFG.rotSpeed * c.rot * dt;
-    } else {
-      p.angle += (0 - p.angle) * Math.min(1, 2 * dt);
+    if (p.chaseTarget) {
+      // Stand on the own-goal side of the target so the body push sends it
+      // toward the enemy goal.
+      const t = p.chaseTarget;
+      p.targetY = t.y;
+      p.targetX = t.x + p.side * (t.r + 28);
     }
+
+    // Accelerated movement in BOTH axes (natural over-/undershoot).
+    const dvy = Math.max(-1, Math.min(1, (p.targetY - p.y) / 60)) * CFG.moveSpeed * c.speed;
+    p.vy += (dvy - p.vy) * Math.min(1, c.accel * dt);
+    p.y += p.vy * dt;
+    const dvx = Math.max(-1, Math.min(1, ((p.targetX ?? p.homeX) - p.x) / 80)) * CFG.moveSpeed * c.speed * 0.8;
+    p.vx += (dvx - p.vx) * Math.min(1, c.accel * dt);
+    p.x += p.vx * dt;
+
+    // Rotation: deliberate boost spin on contact, otherwise angle the face
+    // toward the far side, and settle back to a clean 90° step when idle.
+    if (coming && distX < 90 && p.wantBoost && p.boosting <= 0) {
+      p.boosting = 0.22;
+      p.boostDir = ball.y < p.y ? -1 : 1;
+      p.wantBoost = false;
+    }
+    if (p.boosting > 0) {
+      p.boosting -= dt;
+      p.targetAngle += p.boostDir * CFG.rotSpeed * 3 * dt;
+    } else if (coming && distX < 280) {
+      const aim = (ball.y < H / 2 ? 1 : -1) * (p.side < 0 ? 1 : -1) * 0.45;
+      p.targetAngle += (aim - p.targetAngle) * Math.min(1, 3 * dt);
+    } else {
+      const rest = Math.round(p.targetAngle / HALF_PI) * HALF_PI;
+      p.targetAngle += (rest - p.targetAngle) * Math.min(1, 2.5 * dt);
+    }
+    easeAngle(p, dt);
     clampPaddle(p);
   }
 
@@ -409,14 +512,24 @@ export function initPaddleForce() {
       h.velX = h.owner.velX; h.velY = h.owner.velY; h.angVel = h.owner.angVel;
     });
 
+    // --- Ball physics in SUBSTEPS: the ball never travels more than ~80% of
+    // its own radius per step, so even at max speed it cannot tunnel through
+    // a paddle between two frames.
     const slow = (hasEffect(p1, 'sticky') || hasEffect(p2, 'sticky')) ? 0.6 : 1;
     if (ball.spin) { ball.vy += ball.spin * dt * 0.5; ball.spin *= 0.985; }
-    ball.x += ball.vx * dt * slow; ball.y += ball.vy * dt * slow;
-    if (ball.y < ball.r) { ball.y = ball.r; ball.vy = Math.abs(ball.vy); sfx.wall(); }
-    else if (ball.y > H - ball.r) { ball.y = H - ball.r; ball.vy = -Math.abs(ball.vy); sfx.wall(); }
+    const travel = Math.hypot(ball.vx, ball.vy) * dt * slow;
+    const steps = Math.max(1, Math.min(10, Math.ceil(travel / (ball.r * 0.8))));
+    const sdt = (dt * slow) / steps;
+    let scoredBy = null;
+    for (let s = 0; s < steps && !scoredBy; s++) {
+      ball.x += ball.vx * sdt; ball.y += ball.vy * sdt;
+      if (ball.y < ball.r) { ball.y = ball.r; ball.vy = Math.abs(ball.vy); sfx.wall(); }
+      else if (ball.y > H - ball.r) { ball.y = H - ball.r; ball.vy = -Math.abs(ball.vy); sfx.wall(); }
+      reflect(p1); reflect(p2); helpers.forEach(reflect);
+      if (ball.x < -ball.r) scoredBy = p2;
+      else if (ball.x > W + ball.r) scoredBy = p1;
+    }
     trail.push({ x: ball.x, y: ball.y }); if (trail.length > 16) trail.shift();
-
-    reflect(p1); reflect(p2); helpers.forEach(reflect);
 
     if (settings.powerups.size) {
       puckTimer -= dt;
@@ -445,8 +558,7 @@ export function initPaddleForce() {
       return true;
     });
 
-    if (ball.x < -ball.r) goal(p2);
-    else if (ball.x > W + ball.r) goal(p1);
+    if (scoredBy) goal(scoredBy);
 
     stepFx(dt);
     if (shake.t > 0) shake.t -= dt;
